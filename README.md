@@ -1,32 +1,71 @@
-# WeatherAPP 🌤
+# WeatherAPP 🌤️
 
-A responsive weather application built for the Frontend Mentor Hackathon (Sept–Oct 2025).  
-Built with React, TypeScript, and Tailwind CSS, featuring a beautiful dark theme design.
+A comprehensive, full-stack weather application built for the Frontend Mentor Hackathon (Sept–Oct 2025).  
+Built with React, TypeScript, Express.js, and PostgreSQL, featuring beautiful custom weather icons, geolocation detection, and favorite cities management.
 
-## 🚀 Features
+## ✨ Features
 
-- **City Search**: Search weather by city name with real-time data
-- **Current Weather**: Displays temperature, conditions, and weather icons
-- **Weather Metrics**: Shows feels-like temperature, humidity, wind speed, and precipitation
-- **7-Day Forecast**: Daily high/low temperatures with weather icons
-- **Hourly Forecast**: Temperature changes throughout the day
+### Core Weather Functionality
+- **Real-time Weather Data**: Current conditions, hourly forecasts, and 7-day forecasts using Open-Meteo API
+- **City Search**: Search weather by city name with intelligent geocoding
+- **Automatic Location Detection**: Browser geolocation API automatically detects your location on app load
 - **Unit Conversion**: Toggle between Imperial and Metric (Celsius/Fahrenheit, km/h/mph, mm/inches)
-- **Responsive Design**: Mobile-first design that scales beautifully to desktop
-- **Loading States**: Smooth loading animations and error handling
-- **Dark Theme**: Beautiful gradient backgrounds with floating animations
+- **Custom Weather Icons**: Beautiful pixelated weather icons for all weather conditions
 
-## 🛠 Tech Stack
+### Advanced Features
+- **Favorite Cities Management**: Save unlimited favorite locations with custom names
+- **Quick Access**: One-click weather lookup from favorites sidebar
+- **Geolocation Integration**: "My Location" button for instant local weather
+- **Persistent Storage**: PostgreSQL database for reliable data persistence
+- **Real-time Updates**: Live weather data with smooth loading states and error handling
 
-- **Frontend**: React 18 with TypeScript
-- **Styling**: Tailwind CSS with custom theme
-- **API**: OpenWeatherMap API for weather data
-- **State Management**: React hooks with TanStack Query
-- **UI Components**: Shadcn/ui component library
-- **Icons**: Lucide React
-- **Build Tool**: Vite
-- **Backend**: Express.js for API proxy
+### User Experience
+- **Responsive Design**: Mobile-first design that scales beautifully to all screen sizes
+- **Dark Theme**: Beautiful darker gradient backgrounds with atmospheric feel
+- **Loading States**: Smooth animations and skeleton loaders
+- **Toast Notifications**: User-friendly feedback for all actions
+- **Welcome Screen**: Intuitive onboarding for new users
 
-## ⚙️ Setup
+### Technical Features
+- **Progressive Web App Ready**: Optimized for mobile installation
+- **Type Safety**: Full TypeScript implementation across frontend and backend
+- **API Integration**: RESTful API with comprehensive error handling
+- **Database ORM**: Drizzle ORM for type-safe database operations
+- **Validation**: Zod schemas for runtime type validation
+- **Testing Ready**: Comprehensive test IDs on all interactive elements
+
+## 🏗️ Tech Stack
+
+### Frontend
+- **React 18** with TypeScript for component-based architecture
+- **Vite** for lightning-fast development and optimized builds
+- **Tailwind CSS** with custom dark theme and animations
+- **TanStack Query** for efficient data fetching and caching
+- **Radix UI** for accessible, unstyled component primitives
+- **React Hook Form** with Zod validation for forms
+- **Wouter** for lightweight client-side routing
+
+### Backend
+- **Node.js** with Express.js for the API server
+- **TypeScript** for type-safe backend development
+- **PostgreSQL** database for reliable data persistence
+- **Drizzle ORM** for type-safe database operations
+- **Zod** for request/response validation
+- **Open-Meteo API** for free, reliable weather data
+
+### Infrastructure
+- **Replit** hosting with automatic deployments
+- **Built-in PostgreSQL** database with automatic backups
+- **Environment configuration** for seamless development
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ 
+- PostgreSQL database
+- Modern web browser with geolocation support
+
+### Installation
 
 1. **Clone the repository**
    ```bash
