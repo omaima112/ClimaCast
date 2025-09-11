@@ -1,6 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { weatherRequestSchema, weatherDataSchema, insertFavoriteCitySchema } from "@shared/schema";
+import { 
+  weatherRequestSchema, 
+  weatherDataSchema, 
+  insertFavoriteCitySchema,
+  insertAlertPreferenceSchema,
+  insertWeatherAlertSchema 
+} from "@shared/schema";
 import { z } from "zod";
 import { storage } from "./storage";
 
@@ -329,6 +335,333 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error removing favorite city:", error);
       res.status(500).json({ message: "Failed to remove favorite city" });
+    }
+  });
+
+  // ==================== ALERT PREFERENCES ENDPOINTS ====================
+
+  // Get all alert preferences
+  app.get("/api/alert-preferences", async (req, res) => {
+    try {
+      const preferences = await storage.getAlertPreferences();
+      res.json(preferences);
+    } catch (error) {
+      console.error("Error fetching alert preferences:", error);
+      res.status(500).json({ message: "Failed to fetch alert preferences" });
+    }
+  });
+
+  // Add a new alert preference
+  app.post("/api/alert-preferences", async (req, res) => {
+    try {
+      const preferenceData = insertAlertPreferenceSchema.parse(req.body);
+      const alertPreference = await storage.addAlertPreference(preferenceData);
+      res.status(201).json(alertPreference);
+    } catch (error) {
+      console.error("Error adding alert preference:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid preference data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to add alert preference" });
+      }
+    }
+  });
+
+  // Get a specific alert preference
+  app.get("/api/alert-preferences/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const alertPreference = await storage.getAlertPreference(id);
+      
+      if (!alertPreference) {
+        res.status(404).json({ message: "Alert preference not found" });
+        return;
+      }
+      
+      res.json(alertPreference);
+    } catch (error) {
+      console.error("Error fetching alert preference:", error);
+      res.status(500).json({ message: "Failed to fetch alert preference" });
+    }
+  });
+
+  // Update an alert preference
+  app.put("/api/alert-preferences/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if preference exists first
+      const existingPreference = await storage.getAlertPreference(id);
+      if (!existingPreference) {
+        res.status(404).json({ message: "Alert preference not found" });
+        return;
+      }
+
+      const updateData = insertAlertPreferenceSchema.partial().parse(req.body);
+      const updatedPreference = await storage.updateAlertPreference(id, updateData);
+      res.json(updatedPreference);
+    } catch (error) {
+      console.error("Error updating alert preference:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid preference data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to update alert preference" });
+      }
+    }
+  });
+
+  // Remove an alert preference
+  app.delete("/api/alert-preferences/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if preference exists first
+      const existingPreference = await storage.getAlertPreference(id);
+      if (!existingPreference) {
+        res.status(404).json({ message: "Alert preference not found" });
+        return;
+      }
+      
+      await storage.removeAlertPreference(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error removing alert preference:", error);
+      res.status(500).json({ message: "Failed to remove alert preference" });
+    }
+  });
+
+  // ==================== WEATHER ALERTS ENDPOINTS ====================
+
+  // Get all active weather alerts
+  app.get("/api/alerts", async (req, res) => {
+    try {
+      const alerts = await storage.getActiveWeatherAlerts();
+      res.json(alerts);
+    } catch (error) {
+      console.error("Error fetching weather alerts:", error);
+      res.status(500).json({ message: "Failed to fetch weather alerts" });
+    }
+  });
+
+  // Get alerts for a specific city
+  app.get("/api/alerts/city/:city/:country", async (req, res) => {
+    try {
+      const { city, country } = req.params;
+      const alerts = await storage.getWeatherAlertsForCity(decodeURIComponent(city), decodeURIComponent(country));
+      res.json(alerts);
+    } catch (error) {
+      console.error("Error fetching city alerts:", error);
+      res.status(500).json({ message: "Failed to fetch city alerts" });
+    }
+  });
+
+  // Manually add a weather alert
+  app.post("/api/alerts", async (req, res) => {
+    try {
+      const alertData = insertWeatherAlertSchema.parse(req.body);
+      const weatherAlert = await storage.addWeatherAlert(alertData);
+      res.status(201).json(weatherAlert);
+    } catch (error) {
+      console.error("Error adding weather alert:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid alert data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to add weather alert" });
+      }
+    }
+  });
+
+  // Deactivate a weather alert
+  app.delete("/api/alerts/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deactivateWeatherAlert(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deactivating weather alert:", error);
+      res.status(500).json({ message: "Failed to deactivate weather alert" });
+    }
+  });
+
+  // ==================== ALERT CHECKING SYSTEM ====================
+
+  // Function to check weather conditions against alert preferences
+  async function checkWeatherForAlerts(lat: number, lon: number, city: string, country: string) {
+    try {
+      // Get current weather data
+      const weatherData = await fetchWeatherData(lat, lon, "metric");
+      const current = weatherData.current;
+      
+      // Get enabled alert preferences for this location or global preferences
+      const allPreferences = await storage.getEnabledAlertPreferences();
+      const locationPreferences = allPreferences.filter(pref => 
+        pref.city === city && pref.country === country
+      );
+
+      const alerts = [];
+
+      for (const preference of locationPreferences) {
+        // Check temperature thresholds
+        if (preference.minTempThreshold !== null && current.temperature_2m < preference.minTempThreshold) {
+          alerts.push({
+            city: preference.city,
+            country: preference.country,
+            alertType: "temperature",
+            title: `Low Temperature Alert`,
+            description: `Temperature has dropped to ${Math.round(current.temperature_2m)}°C, below your threshold of ${preference.minTempThreshold}°C`,
+            severity: "moderate",
+            startTime: new Date(),
+            endTime: null,
+            isActive: true,
+          });
+        }
+
+        if (preference.maxTempThreshold !== null && current.temperature_2m > preference.maxTempThreshold) {
+          alerts.push({
+            city: preference.city,
+            country: preference.country,
+            alertType: "temperature",
+            title: `High Temperature Alert`,
+            description: `Temperature has risen to ${Math.round(current.temperature_2m)}°C, above your threshold of ${preference.maxTempThreshold}°C`,
+            severity: "moderate",
+            startTime: new Date(),
+            endTime: null,
+            isActive: true,
+          });
+        }
+
+        // Check wind speed threshold
+        if (preference.windSpeedThreshold !== null && current.wind_speed_10m > preference.windSpeedThreshold) {
+          alerts.push({
+            city: preference.city,
+            country: preference.country,
+            alertType: "wind",
+            title: `High Wind Speed Alert`,
+            description: `Wind speed has reached ${Math.round(current.wind_speed_10m)} km/h, above your threshold of ${preference.windSpeedThreshold} km/h`,
+            severity: "warning",
+            startTime: new Date(),
+            endTime: null,
+            isActive: true,
+          });
+        }
+
+        // Check precipitation threshold
+        if (preference.precipitationThreshold !== null && current.precipitation > preference.precipitationThreshold) {
+          alerts.push({
+            city: preference.city,
+            country: preference.country,
+            alertType: "precipitation",
+            title: `Heavy Precipitation Alert`,
+            description: `Heavy precipitation detected: ${current.precipitation}mm, above your threshold of ${preference.precipitationThreshold}mm`,
+            severity: "warning",
+            startTime: new Date(),
+            endTime: null,
+            isActive: true,
+          });
+        }
+
+        // Check severe weather codes
+        if (preference.severeCodes) {
+          const severeCodes = preference.severeCodes.split(',').map(code => parseInt(code.trim()));
+          if (severeCodes.includes(current.weather_code)) {
+            const description = getWeatherDescription(current.weather_code);
+            let severity = "moderate";
+            
+            // Determine severity based on weather code
+            if ([95, 96, 99].includes(current.weather_code)) {
+              severity = "severe"; // Thunderstorms
+            } else if ([65, 67, 75, 77, 82].includes(current.weather_code)) {
+              severity = "warning"; // Heavy rain/snow
+            }
+
+            alerts.push({
+              city: preference.city,
+              country: preference.country,
+              alertType: "severe_weather",
+              title: `Severe Weather Alert`,
+              description: `${description} detected in your area. Please take appropriate precautions.`,
+              severity,
+              startTime: new Date(),
+              endTime: null,
+              isActive: true,
+            });
+          }
+        }
+      }
+
+      // Save generated alerts to database
+      for (const alert of alerts) {
+        await storage.addWeatherAlert(alert);
+      }
+
+      return alerts;
+    } catch (error) {
+      console.error("Error checking weather for alerts:", error);
+      return [];
+    }
+  }
+
+  // Endpoint to manually trigger alert checking for a location
+  app.post("/api/alerts/check", async (req, res) => {
+    try {
+      const checkRequest = z.object({
+        latitude: z.number(),
+        longitude: z.number(),
+        city: z.string(),
+        country: z.string(),
+      });
+
+      const { latitude, longitude, city, country } = checkRequest.parse(req.body);
+      const generatedAlerts = await checkWeatherForAlerts(latitude, longitude, city, country);
+      
+      res.json({
+        message: `Checked weather conditions for ${city}, ${country}`,
+        alertsGenerated: generatedAlerts.length,
+        alerts: generatedAlerts
+      });
+    } catch (error) {
+      console.error("Error checking alerts:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to check weather alerts" });
+      }
+    }
+  });
+
+  // Endpoint to check alerts for all enabled alert preferences
+  app.post("/api/alerts/check-all", async (req, res) => {
+    try {
+      const preferences = await storage.getEnabledAlertPreferences();
+      let totalAlertsGenerated = 0;
+      const results = [];
+
+      for (const preference of preferences) {
+        const alerts = await checkWeatherForAlerts(
+          preference.latitude, 
+          preference.longitude, 
+          preference.city, 
+          preference.country
+        );
+        totalAlertsGenerated += alerts.length;
+        results.push({
+          location: `${preference.city}, ${preference.country}`,
+          alertsGenerated: alerts.length,
+          alerts
+        });
+      }
+
+      // Cleanup expired alerts
+      await storage.cleanupExpiredAlerts();
+
+      res.json({
+        message: `Checked ${preferences.length} alert preference locations`,
+        totalAlertsGenerated,
+        results
+      });
+    } catch (error) {
+      console.error("Error checking all alerts:", error);
+      res.status(500).json({ message: "Failed to check all weather alerts" });
     }
   });
 

@@ -76,6 +76,32 @@ export const weatherAlerts = pgTable("weather_alerts", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const alertPreferences = pgTable("alert_preferences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
+  city: varchar("city", { length: 255 }).notNull(),
+  country: varchar("country", { length: 255 }).notNull(),
+  latitude: real("latitude").notNull(),
+  longitude: real("longitude").notNull(),
+  
+  // Temperature thresholds
+  minTempThreshold: real("min_temp_threshold"),
+  maxTempThreshold: real("max_temp_threshold"),
+  
+  // Wind speed threshold (km/h)
+  windSpeedThreshold: real("wind_speed_threshold"),
+  
+  // Precipitation threshold (mm)
+  precipitationThreshold: real("precipitation_threshold"),
+  
+  // Severe weather codes to alert on
+  severeCodes: varchar("severe_codes", { length: 500 }).default("95,96,99"), // thunderstorms by default
+  
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Zod Schemas for Database Models
 export const insertFavoriteCitySchema = createInsertSchema(favoriteCities).omit({
   id: true,
@@ -91,6 +117,14 @@ export const insertWeatherAlertSchema = createInsertSchema(weatherAlerts).omit({
 
 export const selectWeatherAlertSchema = createSelectSchema(weatherAlerts);
 
+export const insertAlertPreferenceSchema = createInsertSchema(alertPreferences).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const selectAlertPreferenceSchema = createSelectSchema(alertPreferences);
+
 // Types
 export type WeatherRequest = z.infer<typeof weatherRequestSchema>;
 export type Coordinates = z.infer<typeof coordinatesSchema>;
@@ -103,3 +137,5 @@ export type FavoriteCity = z.infer<typeof selectFavoriteCitySchema>;
 export type InsertFavoriteCity = z.infer<typeof insertFavoriteCitySchema>;
 export type WeatherAlert = z.infer<typeof selectWeatherAlertSchema>;
 export type InsertWeatherAlert = z.infer<typeof insertWeatherAlertSchema>;
+export type AlertPreference = z.infer<typeof selectAlertPreferenceSchema>;
+export type InsertAlertPreference = z.infer<typeof insertAlertPreferenceSchema>;

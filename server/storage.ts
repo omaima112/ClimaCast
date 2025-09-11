@@ -1,10 +1,13 @@
 import { 
   favoriteCities, 
-  weatherAlerts, 
+  weatherAlerts,
+  alertPreferences,
   type FavoriteCity, 
   type InsertFavoriteCity,
   type WeatherAlert,
-  type InsertWeatherAlert
+  type InsertWeatherAlert,
+  type AlertPreference,
+  type InsertAlertPreference
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
@@ -23,6 +26,14 @@ export interface IStorage {
   addWeatherAlert(alert: InsertWeatherAlert): Promise<WeatherAlert>;
   deactivateWeatherAlert(id: string): Promise<void>;
   cleanupExpiredAlerts(): Promise<void>;
+  
+  // Alert Preferences
+  getAlertPreferences(): Promise<AlertPreference[]>;
+  addAlertPreference(preference: InsertAlertPreference): Promise<AlertPreference>;
+  updateAlertPreference(id: string, preference: Partial<InsertAlertPreference>): Promise<AlertPreference>;
+  removeAlertPreference(id: string): Promise<void>;
+  getAlertPreference(id: string): Promise<AlertPreference | undefined>;
+  getEnabledAlertPreferences(): Promise<AlertPreference[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -96,6 +107,45 @@ export class DatabaseStorage implements IStorage {
         // Only deactivate if endTime is set and has passed
         sql`${weatherAlerts.endTime} IS NOT NULL AND ${weatherAlerts.endTime} < ${now}`
       ));
+  }
+
+  // Alert Preferences
+  async getAlertPreferences(): Promise<AlertPreference[]> {
+    return await db.select().from(alertPreferences).orderBy(desc(alertPreferences.createdAt));
+  }
+
+  async addAlertPreference(preference: InsertAlertPreference): Promise<AlertPreference> {
+    const [alertPreference] = await db
+      .insert(alertPreferences)
+      .values(preference)
+      .returning();
+    return alertPreference;
+  }
+
+  async updateAlertPreference(id: string, preference: Partial<InsertAlertPreference>): Promise<AlertPreference> {
+    const [updatedPreference] = await db
+      .update(alertPreferences)
+      .set({ ...preference, updatedAt: new Date() })
+      .where(eq(alertPreferences.id, id))
+      .returning();
+    return updatedPreference;
+  }
+
+  async removeAlertPreference(id: string): Promise<void> {
+    await db.delete(alertPreferences).where(eq(alertPreferences.id, id));
+  }
+
+  async getAlertPreference(id: string): Promise<AlertPreference | undefined> {
+    const [preference] = await db.select().from(alertPreferences).where(eq(alertPreferences.id, id));
+    return preference || undefined;
+  }
+
+  async getEnabledAlertPreferences(): Promise<AlertPreference[]> {
+    return await db
+      .select()
+      .from(alertPreferences)
+      .where(eq(alertPreferences.isEnabled, true))
+      .orderBy(desc(alertPreferences.createdAt));
   }
 }
 
