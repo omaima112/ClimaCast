@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/weather/header";
 import SearchSection from "@/components/weather/search-section";
 import MainWeatherCard from "@/components/weather/main-weather-card";
@@ -9,6 +9,7 @@ import { WeatherData } from "@shared/schema";
 import { useWeather } from "@/hooks/use-weather";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export type Units = "metric" | "imperial";
 
@@ -25,10 +26,34 @@ export default function Home() {
     windSpeed: "kmh",
     precipitation: "mm",
   });
+  const [hasAttemptedGeolocation, setHasAttemptedGeolocation] = useState(false);
   
   const { weatherData, isLoading, error, searchWeather, searchWeatherByCoordinates } = useWeather();
   const { getCurrentPosition, checkGeolocationSupport } = useGeolocation();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+
+  // Automatic geolocation detection on mount
+  useEffect(() => {
+    if (!hasAttemptedGeolocation && !weatherData && checkGeolocationSupport()) {
+      setHasAttemptedGeolocation(true);
+      
+      const autoDetectLocation = async () => {
+        try {
+          const coords = await getCurrentPosition();
+          searchWeatherByCoordinates({
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            units,
+          });
+        } catch (error) {
+          console.warn("Automatic geolocation failed:", error);
+          // Silently fail - user can still search manually
+        }
+      };
+
+      autoDetectLocation();
+    }
+  }, [hasAttemptedGeolocation, weatherData, getCurrentPosition, searchWeatherByCoordinates, units, checkGeolocationSupport]);
 
   const handleSearch = (city: string) => {
     searchWeather({ city, units });
@@ -56,7 +81,17 @@ export default function Home() {
     
     // Re-fetch weather data with new units if we have current weather data
     if (weatherData) {
-      searchWeather({ city: weatherData.location.city, units: newUnits });
+      // If we have coordinates (from geolocation), use them instead of city name
+      if (weatherData.location.coordinates) {
+        searchWeatherByCoordinates({
+          latitude: weatherData.location.coordinates.latitude,
+          longitude: weatherData.location.coordinates.longitude,
+          units: newUnits,
+        });
+      } else {
+        // Fall back to city search for regular city searches
+        searchWeather({ city: weatherData.location.city, units: newUnits });
+      }
     }
   };
 

@@ -87,9 +87,9 @@ async function fetchWeatherData(lat: number, lon: number, units: string) {
   const params = new URLSearchParams({
     latitude: lat.toString(),
     longitude: lon.toString(),
-    current: "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m",
-    hourly: "temperature_2m,weather_code,time",
-    daily: "weather_code,temperature_2m_max,temperature_2m_min,time",
+    current: "temperature_2m,relative_humidity_2m,apparent_temperature,is_day,showers,rain,precipitation,snowfall,surface_pressure,pressure_msl,cloud_cover,weather_code,wind_gusts_10m,wind_direction_10m,wind_speed_10m",
+    hourly: "temperature_2m,snow_depth,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,vapour_pressure_deficit,visibility,cloud_cover_high,cloud_cover,weather_code,pressure_msl,surface_pressure,cloud_cover_low,cloud_cover_mid,evapotranspiration,et0_fao_evapotranspiration,soil_temperature_0cm,soil_temperature_6cm,soil_temperature_54cm,wind_speed_10m,wind_speed_120m,wind_direction_10m,wind_direction_80m,wind_direction_120m,wind_direction_180m,temperature_120m,temperature_180m,temperature_80m",
+    daily: "rain_sum,showers_sum,snowfall_sum,precipitation_sum,precipitation_hours,precipitation_probability_max,weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,daylight_duration,sunshine_duration,uv_index_max,uv_index_clear_sky_max,sunset,et0_fao_evapotranspiration,shortwave_radiation_sum,wind_direction_10m_dominant,wind_speed_10m_max,wind_gusts_10m_max",
     temperature_unit: temperatureUnit,
     wind_speed_unit: windSpeedUnit,
     precipitation_unit: precipitationUnit,
@@ -121,16 +121,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get location name from coordinates (reverse geocoding)
       const locationResponse = await fetch(
-        `${GEOCODING_API_URL}/search?latitude=${latitude}&longitude=${longitude}&count=1&language=en&format=json`
+        `${GEOCODING_API_URL}/reverse?latitude=${latitude}&longitude=${longitude}&count=1&language=en&format=json`
       );
 
-      let locationData = { name: "Unknown", country: "Unknown" };
+      let locationData = { name: "Current Location", country: "" };
       if (locationResponse.ok) {
         const locationResult = await locationResponse.json();
         if (locationResult.results && locationResult.results.length > 0) {
           locationData = {
-            name: locationResult.results[0].name,
-            country: locationResult.results[0].country,
+            name: locationResult.results[0].name || "Current Location",
+            country: locationResult.results[0].country || "",
           };
         }
       }
@@ -170,7 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           feelsLike: Math.round(weatherData.current.apparent_temperature),
           humidity: Math.round(weatherData.current.relative_humidity_2m),
           windSpeed: Math.round(weatherData.current.wind_speed_10m),
-          precipitation: weatherData.current.precipitation || 0,
+          precipitation: Math.round(weatherData.current.precipitation || 0),
           weatherCode: weatherData.current.weather_code,
           description: getWeatherDescription(weatherData.current.weather_code),
         },
@@ -201,38 +201,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get coordinates for the city
       const locationData = await fetchCoordinates(city);
 
-      // Fetch weather data
-      const { currentData, forecastData } = await fetchWeatherData(
+      // Fetch weather data from Open-Meteo
+      const weatherData = await fetchWeatherData(
         locationData.latitude,
         locationData.longitude,
         units
       );
 
-      // Process daily forecast (get one entry per day for next 7 days)
-      const dailyMap = new Map();
-      forecastData.list.forEach((item: any) => {
-        const date = new Date(item.dt * 1000).toDateString();
-        if (!dailyMap.has(date) && dailyMap.size < 7) {
-          dailyMap.set(date, {
-            date: new Date(item.dt * 1000).toISOString().split('T')[0],
-            dayName: getDayName(new Date(item.dt * 1000).toISOString()),
-            maxTemp: Math.round(item.main.temp_max),
-            minTemp: Math.round(item.main.temp_min),
-            weatherCode: item.weather[0].id,
-            description: getWeatherDescription(item.weather[0].id),
-          });
-        }
-      });
-
-      // Process hourly forecast (next 24 hours)
-      const hourlyForecast = forecastData.list.slice(0, 8).map((item: any) => ({
-        time: formatTime(item.dt),
-        temperature: Math.round(item.main.temp),
-        weatherCode: item.weather[0].id,
-        description: getWeatherDescription(item.weather[0].id),
+      // Process daily forecast
+      const dailyForecast = weatherData.daily.time.slice(0, 7).map((date: string, index: number) => ({
+        date,
+        dayName: getDayName(date),
+        maxTemp: Math.round(weatherData.daily.temperature_2m_max[index]),
+        minTemp: Math.round(weatherData.daily.temperature_2m_min[index]),
+        weatherCode: weatherData.daily.weather_code[index],
+        description: getWeatherDescription(weatherData.daily.weather_code[index]),
       }));
 
-      const weatherData = {
+      // Process hourly forecast (next 8 hours)
+      const hourlyForecast = weatherData.hourly.time.slice(0, 8).map((time: string, index: number) => ({
+        time: formatTime(new Date(time).getTime() / 1000),
+        temperature: Math.round(weatherData.hourly.temperature_2m[index]),
+        weatherCode: weatherData.hourly.weather_code[index],
+        description: getWeatherDescription(weatherData.hourly.weather_code[index]),
+      }));
+
+      const weatherDataResponse = {
         location: {
           city: locationData.city,
           country: locationData.country,
@@ -242,21 +236,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
         },
         current: {
-          temperature: Math.round(currentData.main.temp),
-          feelsLike: Math.round(currentData.main.feels_like),
-          humidity: currentData.main.humidity,
-          windSpeed: Math.round(currentData.wind.speed),
-          precipitation: currentData.rain?.["1h"] || currentData.snow?.["1h"] || 0,
-          weatherCode: currentData.weather[0].id,
-          description: getWeatherDescription(currentData.weather[0].id),
+          temperature: Math.round(weatherData.current.temperature_2m),
+          feelsLike: Math.round(weatherData.current.apparent_temperature),
+          humidity: Math.round(weatherData.current.relative_humidity_2m),
+          windSpeed: Math.round(weatherData.current.wind_speed_10m),
+          precipitation: Math.round(weatherData.current.precipitation || 0),
+          weatherCode: weatherData.current.weather_code,
+          description: getWeatherDescription(weatherData.current.weather_code),
         },
-        daily: Array.from(dailyMap.values()),
+        daily: dailyForecast,
         hourly: hourlyForecast,
         lastUpdated: new Date().toISOString(),
       };
 
       // Validate the response
-      const validatedData = weatherDataSchema.parse(weatherData);
+      const validatedData = weatherDataSchema.parse(weatherDataResponse);
       res.json(validatedData);
     } catch (error) {
       console.error("Weather API error:", error);
