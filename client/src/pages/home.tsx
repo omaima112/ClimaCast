@@ -5,7 +5,8 @@ import MainWeatherCard from "@/components/weather/main-weather-card";
 import WeatherMetrics from "@/components/weather/weather-metrics";
 import DailyForecast from "@/components/weather/daily-forecast";
 import HourlyForecast from "@/components/weather/hourly-forecast";
-import { WeatherData } from "@shared/schema";
+import { FavoritesSection } from "@/components/weather/favorites-section";
+import { WeatherData, type FavoriteCity } from "@shared/schema";
 import { useWeather } from "@/hooks/use-weather";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { Loader2 } from "lucide-react";
@@ -75,6 +76,14 @@ export default function Home() {
     }
   };
 
+  const handleFavoriteSelect = (favoriteCity: FavoriteCity) => {
+    searchWeatherByCoordinates({
+      latitude: favoriteCity.latitude,
+      longitude: favoriteCity.longitude,
+      units,
+    });
+  };
+
   const handleUnitsChange = (newUnits: Units, newUnitsConfig: UnitsConfig) => {
     setUnits(newUnits);
     setUnitsConfig(newUnitsConfig);
@@ -114,18 +123,36 @@ export default function Home() {
             error={error} 
           />
           
-          {weatherData && (
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-              <div className="xl:col-span-2">
-                <MainWeatherCard weatherData={weatherData} unitsConfig={unitsConfig} />
-                <WeatherMetrics weatherData={weatherData} unitsConfig={unitsConfig} />
-                <DailyForecast dailyForecast={weatherData.daily} unitsConfig={unitsConfig} />
-              </div>
-              <div className="xl:col-span-1">
-                <HourlyForecast hourlyForecast={weatherData.hourly} unitsConfig={unitsConfig} />
-              </div>
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            {/* Favorites Section */}
+            <div className="xl:col-span-1">
+              <FavoritesSection onCitySelect={handleFavoriteSelect} />
             </div>
-          )}
+            
+            {/* Weather Content */}
+            {weatherData ? (
+              <div className="xl:col-span-3">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                  <div className="xl:col-span-2">
+                    <MainWeatherCard weatherData={weatherData} unitsConfig={unitsConfig} />
+                    <WeatherMetrics weatherData={weatherData} unitsConfig={unitsConfig} />
+                    <DailyForecast dailyForecast={weatherData.daily} unitsConfig={unitsConfig} />
+                  </div>
+                  <div className="xl:col-span-1">
+                    <HourlyForecast hourlyForecast={weatherData.hourly} unitsConfig={unitsConfig} />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="xl:col-span-3 flex items-center justify-center">
+                <div className="text-center py-16">
+                  <div className="text-6xl mb-4">🌤️</div>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">Welcome to Weather App</h2>
+                  <p className="text-muted-foreground">Search for a city or use your current location to get started</p>
+                </div>
+              </div>
+            )}
+          </div>
           
           {isLoading && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

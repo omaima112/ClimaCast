@@ -1,6 +1,7 @@
 import { WeatherData } from "@shared/schema";
 import { getWeatherIcon } from "./weather-icons";
 import { UnitsConfig } from "@/pages/home";
+import { AddToFavorites } from "./add-to-favorites";
 
 interface MainWeatherCardProps {
   weatherData: WeatherData;
@@ -27,10 +28,13 @@ export default function MainWeatherCard({ weatherData, unitsConfig }: MainWeathe
     <div className="weather-card p-8 text-white relative z-10" data-testid="card-main-weather">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
         <div className="mb-6 lg:mb-0">
-          <h3 className="text-2xl font-bold mb-2" data-testid="text-location">
-            {weatherData.location.city}, {weatherData.location.country}
-          </h3>
-          <p className="text-neutral-200 mb-6" data-testid="text-date">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-2xl font-bold" data-testid="text-location">
+              {weatherData.location.city}, {weatherData.location.country}
+            </h3>
+            <AddToFavorites weatherData={weatherData} />
+          </div>
+          <p className="text-neutral-200" data-testid="text-date">
             {formatDate()}
           </p>
         </div>
