@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { weatherRequestSchema, weatherDataSchema } from "@shared/schema";
+import { weatherRequestSchema, weatherDataSchema, insertFavoriteCitySchema } from "@shared/schema";
 import { z } from "zod";
+import { storage } from "./storage";
 
 const OPEN_METEO_BASE_URL = "https://api.open-meteo.com/v1";
 const GEOCODING_API_URL = "https://geocoding-api.open-meteo.com/v1";
@@ -261,6 +262,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ message: "Internal server error" });
       }
+    }
+  });
+
+  // Favorite Cities API endpoints
+  
+  // Get all favorite cities
+  app.get("/api/favorites", async (req, res) => {
+    try {
+      const favorites = await storage.getFavoriteCities();
+      res.json(favorites);
+    } catch (error) {
+      console.error("Error fetching favorite cities:", error);
+      res.status(500).json({ message: "Failed to fetch favorite cities" });
+    }
+  });
+
+  // Add a new favorite city
+  app.post("/api/favorites", async (req, res) => {
+    try {
+      const cityData = insertFavoriteCitySchema.parse(req.body);
+      const favoriteCity = await storage.addFavoriteCity(cityData);
+      res.status(201).json(favoriteCity);
+    } catch (error) {
+      console.error("Error adding favorite city:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid city data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to add favorite city" });
+      }
+    }
+  });
+
+  // Get a specific favorite city
+  app.get("/api/favorites/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const favoriteCity = await storage.getFavoriteCity(id);
+      
+      if (!favoriteCity) {
+        res.status(404).json({ message: "Favorite city not found" });
+        return;
+      }
+      
+      res.json(favoriteCity);
+    } catch (error) {
+      console.error("Error fetching favorite city:", error);
+      res.status(500).json({ message: "Failed to fetch favorite city" });
+    }
+  });
+
+  // Remove a favorite city
+  app.delete("/api/favorites/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Check if city exists first
+      const existingCity = await storage.getFavoriteCity(id);
+      if (!existingCity) {
+        res.status(404).json({ message: "Favorite city not found" });
+        return;
+      }
+      
+      await storage.removeFavoriteCity(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error removing favorite city:", error);
+      res.status(500).json({ message: "Failed to remove favorite city" });
     }
   });
 
