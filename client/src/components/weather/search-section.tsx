@@ -1,16 +1,26 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, MapPin } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SearchSectionProps {
   onSearch: (city: string) => void;
+  onLocationSearch: () => void;
   isLoading: boolean;
+  isLocationLoading: boolean;
+  isLocationSupported: boolean;
   error: string | null;
 }
 
-export default function SearchSection({ onSearch, isLoading, error }: SearchSectionProps) {
+export default function SearchSection({ 
+  onSearch, 
+  onLocationSearch, 
+  isLoading, 
+  isLocationLoading, 
+  isLocationSupported, 
+  error 
+}: SearchSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -35,19 +45,35 @@ export default function SearchSection({ onSearch, isLoading, error }: SearchSect
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-4 bg-card border-border text-foreground placeholder-muted-foreground focus:ring-ring"
-            disabled={isLoading}
+            disabled={isLoading || isLocationLoading}
             data-testid="input-search"
           />
         </div>
-        <Button
-          type="submit"
-          disabled={isLoading || !searchQuery.trim()}
-          className="px-8 py-4 bg-weather-blue hover:bg-weather-blue-dark text-white font-semibold flex items-center justify-center gap-2"
-          data-testid="button-search"
-        >
-          <span>Search</span>
-          {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="submit"
+            disabled={isLoading || isLocationLoading || !searchQuery.trim()}
+            className="px-8 py-4 bg-weather-blue hover:bg-weather-blue-dark text-white font-semibold flex items-center justify-center gap-2"
+            data-testid="button-search"
+          >
+            <span>Search</span>
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+          </Button>
+          {isLocationSupported && (
+            <Button
+              type="button"
+              onClick={onLocationSearch}
+              disabled={isLoading || isLocationLoading}
+              variant="outline"
+              className="px-6 py-4 bg-card border-border text-foreground hover:bg-accent flex items-center justify-center gap-2"
+              data-testid="button-location"
+            >
+              <MapPin className="w-4 h-4" />
+              <span>My Location</span>
+              {isLocationLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+            </Button>
+          )}
+        </div>
       </form>
 
       {error && (

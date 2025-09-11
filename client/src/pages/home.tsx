@@ -7,6 +7,7 @@ import DailyForecast from "@/components/weather/daily-forecast";
 import HourlyForecast from "@/components/weather/hourly-forecast";
 import { WeatherData } from "@shared/schema";
 import { useWeather } from "@/hooks/use-weather";
+import { useGeolocation } from "@/hooks/use-geolocation";
 import { Loader2 } from "lucide-react";
 
 export type Units = "metric" | "imperial";
@@ -25,10 +26,28 @@ export default function Home() {
     precipitation: "mm",
   });
   
-  const { weatherData, isLoading, error, searchWeather } = useWeather();
+  const { weatherData, isLoading, error, searchWeather, searchWeatherByCoordinates } = useWeather();
+  const { getCurrentPosition, checkGeolocationSupport } = useGeolocation();
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const handleSearch = (city: string) => {
     searchWeather({ city, units });
+  };
+
+  const handleLocationSearch = async () => {
+    setIsGettingLocation(true);
+    try {
+      const coords = await getCurrentPosition();
+      searchWeatherByCoordinates({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        units,
+      });
+    } catch (error: any) {
+      console.error("Geolocation error:", error);
+    } finally {
+      setIsGettingLocation(false);
+    }
   };
 
   const handleUnitsChange = (newUnits: Units, newUnitsConfig: UnitsConfig) => {
@@ -51,7 +70,14 @@ export default function Home() {
         />
         
         <div className="max-w-7xl mx-auto">
-          <SearchSection onSearch={handleSearch} isLoading={isLoading} error={error} />
+          <SearchSection 
+            onSearch={handleSearch} 
+            onLocationSearch={handleLocationSearch}
+            isLoading={isLoading} 
+            isLocationLoading={isGettingLocation}
+            isLocationSupported={checkGeolocationSupport()}
+            error={error} 
+          />
           
           {weatherData && (
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">

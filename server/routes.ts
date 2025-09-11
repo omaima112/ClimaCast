@@ -3,67 +3,40 @@ import { createServer, type Server } from "http";
 import { weatherRequestSchema, weatherDataSchema } from "@shared/schema";
 import { z } from "zod";
 
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || process.env.API_KEY || "demo_key";
-const OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5";
+const OPEN_METEO_BASE_URL = "https://api.open-meteo.com/v1";
+const GEOCODING_API_URL = "https://geocoding-api.open-meteo.com/v1";
 
-// Weather code mapping for Open Weather API
+// Weather code mapping for Open-Meteo WMO codes
 const getWeatherDescription = (code: number): string => {
   const weatherCodes: Record<number, string> = {
-    200: "Thunderstorm with light rain",
-    201: "Thunderstorm with rain",
-    202: "Thunderstorm with heavy rain",
-    210: "Light thunderstorm",
-    211: "Thunderstorm",
-    212: "Heavy thunderstorm",
-    221: "Ragged thunderstorm",
-    230: "Thunderstorm with light drizzle",
-    231: "Thunderstorm with drizzle",
-    232: "Thunderstorm with heavy drizzle",
-    300: "Light intensity drizzle",
-    301: "Drizzle",
-    302: "Heavy intensity drizzle",
-    310: "Light intensity drizzle rain",
-    311: "Drizzle rain",
-    312: "Heavy intensity drizzle rain",
-    313: "Shower rain and drizzle",
-    314: "Heavy shower rain and drizzle",
-    321: "Shower drizzle",
-    500: "Light rain",
-    501: "Moderate rain",
-    502: "Heavy intensity rain",
-    503: "Very heavy rain",
-    504: "Extreme rain",
-    511: "Freezing rain",
-    520: "Light intensity shower rain",
-    521: "Shower rain",
-    522: "Heavy intensity shower rain",
-    531: "Ragged shower rain",
-    600: "Light snow",
-    601: "Snow",
-    602: "Heavy snow",
-    611: "Sleet",
-    612: "Light shower sleet",
-    613: "Shower sleet",
-    615: "Light rain and snow",
-    616: "Rain and snow",
-    620: "Light shower snow",
-    621: "Shower snow",
-    622: "Heavy shower snow",
-    701: "Mist",
-    711: "Smoke",
-    721: "Haze",
-    731: "Sand/dust whirls",
-    741: "Fog",
-    751: "Sand",
-    761: "Dust",
-    762: "Volcanic ash",
-    771: "Squalls",
-    781: "Tornado",
-    800: "Clear sky",
-    801: "Few clouds",
-    802: "Scattered clouds",
-    803: "Broken clouds",
-    804: "Overcast clouds",
+    0: "Clear sky",
+    1: "Mainly clear",
+    2: "Partly cloudy",
+    3: "Overcast",
+    45: "Fog",
+    48: "Depositing rime fog",
+    51: "Light drizzle",
+    53: "Moderate drizzle",
+    55: "Dense drizzle",
+    56: "Light freezing drizzle",
+    57: "Dense freezing drizzle",
+    61: "Slight rain",
+    63: "Moderate rain",
+    65: "Heavy rain",
+    66: "Light freezing rain",
+    67: "Heavy freezing rain",
+    71: "Slight snow fall",
+    73: "Moderate snow fall",
+    75: "Heavy snow fall",
+    77: "Snow grains",
+    80: "Slight rain showers",
+    81: "Moderate rain showers",
+    82: "Violent rain showers",
+    85: "Slight snow showers",
+    86: "Heavy snow showers",
+    95: "Thunderstorm",
+    96: "Thunderstorm with slight hail",
+    99: "Thunderstorm with heavy hail",
   };
   return weatherCodes[code] || "Unknown weather condition";
 };
@@ -83,45 +56,143 @@ const formatTime = (timestamp: number): string => {
 
 async function fetchCoordinates(city: string) {
   const response = await fetch(
-    `${OPENWEATHER_BASE_URL}/weather?q=${encodeURIComponent(city)}&appid=${OPENWEATHER_API_KEY}`
+    `${GEOCODING_API_URL}/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
   );
 
   if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error("City not found. Please check the spelling and try again.");
-    }
-    throw new Error(`Weather service unavailable: ${response.statusText}`);
+    throw new Error(`Geocoding service unavailable: ${response.statusText}`);
   }
 
   const data = await response.json();
+  
+  if (!data.results || data.results.length === 0) {
+    throw new Error("City not found. Please check the spelling and try again.");
+  }
+
+  const result = data.results[0];
   return {
-    latitude: data.coord.lat,
-    longitude: data.coord.lon,
-    city: data.name,
-    country: data.sys.country,
+    latitude: result.latitude,
+    longitude: result.longitude,
+    city: result.name,
+    country: result.country,
   };
 }
 
 async function fetchWeatherData(lat: number, lon: number, units: string) {
-  const currentResponse = await fetch(
-    `${OPENWEATHER_BASE_URL}/weather?lat=${lat}&lon=${lon}&units=${units}&appid=${OPENWEATHER_API_KEY}`
-  );
+  // Convert units - Open-Meteo uses different unit system
+  const temperatureUnit = units === "imperial" ? "fahrenheit" : "celsius";
+  const windSpeedUnit = units === "imperial" ? "mph" : "kmh";
+  const precipitationUnit = units === "imperial" ? "inch" : "mm";
 
-  const forecastResponse = await fetch(
-    `${OPENWEATHER_BASE_URL}/forecast?lat=${lat}&lon=${lon}&units=${units}&appid=${OPENWEATHER_API_KEY}`
-  );
+  const params = new URLSearchParams({
+    latitude: lat.toString(),
+    longitude: lon.toString(),
+    current: "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m",
+    hourly: "temperature_2m,weather_code,time",
+    daily: "weather_code,temperature_2m_max,temperature_2m_min,time",
+    temperature_unit: temperatureUnit,
+    wind_speed_unit: windSpeedUnit,
+    precipitation_unit: precipitationUnit,
+    timezone: "auto",
+    forecast_days: "7"
+  });
 
-  if (!currentResponse.ok || !forecastResponse.ok) {
-    throw new Error("Failed to fetch weather data");
+  const response = await fetch(`${OPEN_METEO_BASE_URL}/forecast?${params}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch weather data from Open-Meteo");
   }
 
-  const currentData = await currentResponse.json();
-  const forecastData = await forecastResponse.json();
-
-  return { currentData, forecastData };
+  const data = await response.json();
+  return data;
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Search weather by coordinates (for geolocation)
+  app.post("/api/weather/coordinates", async (req, res) => {
+    try {
+      const coordinatesRequest = z.object({
+        latitude: z.number(),
+        longitude: z.number(),
+        units: z.enum(["metric", "imperial"]).default("metric"),
+      });
+
+      const { latitude, longitude, units } = coordinatesRequest.parse(req.body);
+
+      // Get location name from coordinates (reverse geocoding)
+      const locationResponse = await fetch(
+        `${GEOCODING_API_URL}/search?latitude=${latitude}&longitude=${longitude}&count=1&language=en&format=json`
+      );
+
+      let locationData = { name: "Unknown", country: "Unknown" };
+      if (locationResponse.ok) {
+        const locationResult = await locationResponse.json();
+        if (locationResult.results && locationResult.results.length > 0) {
+          locationData = {
+            name: locationResult.results[0].name,
+            country: locationResult.results[0].country,
+          };
+        }
+      }
+
+      // Fetch weather data from Open-Meteo
+      const weatherData = await fetchWeatherData(latitude, longitude, units);
+
+      // Process daily forecast
+      const dailyForecast = weatherData.daily.time.slice(0, 7).map((date: string, index: number) => ({
+        date,
+        dayName: getDayName(date),
+        maxTemp: Math.round(weatherData.daily.temperature_2m_max[index]),
+        minTemp: Math.round(weatherData.daily.temperature_2m_min[index]),
+        weatherCode: weatherData.daily.weather_code[index],
+        description: getWeatherDescription(weatherData.daily.weather_code[index]),
+      }));
+
+      // Process hourly forecast (next 8 hours)
+      const hourlyForecast = weatherData.hourly.time.slice(0, 8).map((time: string, index: number) => ({
+        time: formatTime(new Date(time).getTime() / 1000),
+        temperature: Math.round(weatherData.hourly.temperature_2m[index]),
+        weatherCode: weatherData.hourly.weather_code[index],
+        description: getWeatherDescription(weatherData.hourly.weather_code[index]),
+      }));
+
+      const weatherDataResponse = {
+        location: {
+          city: locationData.name,
+          country: locationData.country,
+          coordinates: {
+            latitude,
+            longitude,
+          },
+        },
+        current: {
+          temperature: Math.round(weatherData.current.temperature_2m),
+          feelsLike: Math.round(weatherData.current.apparent_temperature),
+          humidity: Math.round(weatherData.current.relative_humidity_2m),
+          windSpeed: Math.round(weatherData.current.wind_speed_10m),
+          precipitation: weatherData.current.precipitation || 0,
+          weatherCode: weatherData.current.weather_code,
+          description: getWeatherDescription(weatherData.current.weather_code),
+        },
+        daily: dailyForecast,
+        hourly: hourlyForecast,
+        lastUpdated: new Date().toISOString(),
+      };
+
+      const validatedData = weatherDataSchema.parse(weatherDataResponse);
+      res.json(validatedData);
+    } catch (error) {
+      console.error("Geolocation weather API error:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      } else if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  });
+
   // Search weather by city
   app.post("/api/weather/search", async (req, res) => {
     try {
