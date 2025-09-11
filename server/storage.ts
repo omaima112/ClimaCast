@@ -1,38 +1,102 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { 
+  favoriteCities, 
+  weatherAlerts, 
+  type FavoriteCity, 
+  type InsertFavoriteCity,
+  type WeatherAlert,
+  type InsertWeatherAlert
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc, sql } from "drizzle-orm";
 
-// modify the interface with any CRUD methods
-// you might need
-
+// Storage interface for weather app features
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Favorite Cities
+  getFavoriteCities(): Promise<FavoriteCity[]>;
+  addFavoriteCity(city: InsertFavoriteCity): Promise<FavoriteCity>;
+  removeFavoriteCity(id: string): Promise<void>;
+  getFavoriteCity(id: string): Promise<FavoriteCity | undefined>;
+  
+  // Weather Alerts
+  getActiveWeatherAlerts(): Promise<WeatherAlert[]>;
+  getWeatherAlertsForCity(city: string, country: string): Promise<WeatherAlert[]>;
+  addWeatherAlert(alert: InsertWeatherAlert): Promise<WeatherAlert>;
+  deactivateWeatherAlert(id: string): Promise<void>;
+  cleanupExpiredAlerts(): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  // Favorite Cities
+  async getFavoriteCities(): Promise<FavoriteCity[]> {
+    return await db.select().from(favoriteCities).orderBy(desc(favoriteCities.addedAt));
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async addFavoriteCity(city: InsertFavoriteCity): Promise<FavoriteCity> {
+    const [favoriteCity] = await db
+      .insert(favoriteCities)
+      .values(city)
+      .returning();
+    return favoriteCity;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async removeFavoriteCity(id: string): Promise<void> {
+    await db.delete(favoriteCities).where(eq(favoriteCities.id, id));
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getFavoriteCity(id: string): Promise<FavoriteCity | undefined> {
+    const [city] = await db.select().from(favoriteCities).where(eq(favoriteCities.id, id));
+    return city || undefined;
+  }
+
+  // Weather Alerts
+  async getActiveWeatherAlerts(): Promise<WeatherAlert[]> {
+    return await db
+      .select()
+      .from(weatherAlerts)
+      .where(eq(weatherAlerts.isActive, true))
+      .orderBy(desc(weatherAlerts.createdAt));
+  }
+
+  async getWeatherAlertsForCity(city: string, country: string): Promise<WeatherAlert[]> {
+    return await db
+      .select()
+      .from(weatherAlerts)
+      .where(
+        and(
+          eq(weatherAlerts.city, city),
+          eq(weatherAlerts.country, country),
+          eq(weatherAlerts.isActive, true)
+        )
+      )
+      .orderBy(desc(weatherAlerts.startTime));
+  }
+
+  async addWeatherAlert(alert: InsertWeatherAlert): Promise<WeatherAlert> {
+    const [weatherAlert] = await db
+      .insert(weatherAlerts)
+      .values(alert)
+      .returning();
+    return weatherAlert;
+  }
+
+  async deactivateWeatherAlert(id: string): Promise<void> {
+    await db
+      .update(weatherAlerts)
+      .set({ isActive: false })
+      .where(eq(weatherAlerts.id, id));
+  }
+
+  async cleanupExpiredAlerts(): Promise<void> {
+    const now = new Date();
+    await db
+      .update(weatherAlerts)
+      .set({ isActive: false })
+      .where(and(
+        eq(weatherAlerts.isActive, true),
+        // Only deactivate if endTime is set and has passed
+        sql`${weatherAlerts.endTime} IS NOT NULL AND ${weatherAlerts.endTime} < ${now}`
+      ));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

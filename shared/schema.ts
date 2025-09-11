@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { pgTable, varchar, timestamp, text, real, integer, boolean } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { relations, sql } from "drizzle-orm";
 
 export const weatherRequestSchema = z.object({
   city: z.string().min(1, "City name is required"),
@@ -48,9 +51,55 @@ export const weatherDataSchema = z.object({
   lastUpdated: z.string(),
 });
 
+// Database Tables
+export const favoriteCities = pgTable("favorite_cities", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
+  city: varchar("city", { length: 255 }).notNull(),
+  country: varchar("country", { length: 255 }).notNull(),
+  latitude: real("latitude").notNull(),
+  longitude: real("longitude").notNull(),
+  addedAt: timestamp("added_at").defaultNow().notNull(),
+});
+
+export const weatherAlerts = pgTable("weather_alerts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  city: varchar("city", { length: 255 }).notNull(),
+  country: varchar("country", { length: 255 }).notNull(),
+  alertType: varchar("alert_type", { length: 100 }).notNull(), // severe, warning, watch, etc.
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description").notNull(),
+  severity: varchar("severity", { length: 50 }).notNull(), // minor, moderate, severe, extreme
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Zod Schemas for Database Models
+export const insertFavoriteCitySchema = createInsertSchema(favoriteCities).omit({
+  id: true,
+  addedAt: true,
+});
+
+export const selectFavoriteCitySchema = createSelectSchema(favoriteCities);
+
+export const insertWeatherAlertSchema = createInsertSchema(weatherAlerts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const selectWeatherAlertSchema = createSelectSchema(weatherAlerts);
+
+// Types
 export type WeatherRequest = z.infer<typeof weatherRequestSchema>;
 export type Coordinates = z.infer<typeof coordinatesSchema>;
 export type CurrentWeather = z.infer<typeof currentWeatherSchema>;
 export type DailyForecastItem = z.infer<typeof dailyForecastItemSchema>;
 export type HourlyForecastItem = z.infer<typeof hourlyForecastItemSchema>;
 export type WeatherData = z.infer<typeof weatherDataSchema>;
+
+export type FavoriteCity = z.infer<typeof selectFavoriteCitySchema>;
+export type InsertFavoriteCity = z.infer<typeof insertFavoriteCitySchema>;
+export type WeatherAlert = z.infer<typeof selectWeatherAlertSchema>;
+export type InsertWeatherAlert = z.infer<typeof insertWeatherAlertSchema>;
