@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,600&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f0f0f0;
+  --foreground: #1a1a1a;
+  --card: #fcfcfc;
+  --card-foreground: hsl(0, 0%, 0%);
+  --popover: hsl(45, 25%, 97%);
+  --popover-foreground: hsl(0, 0%, 100%);
+  --primary: #eb1a4e;
+  --primary-foreground: #ffffff;
+  --secondary: #c4c4c4;
+  --secondary-foreground: #1a1a1a;
+  --muted: #e3e3e3;
+  --muted-foreground: #212121;
+  --accent: hsl(0, 0%, 100%);
+  --accent-foreground: hsl(0, 0%, 10.2%);
+  --destructive: hsl(0, 0%, 0%);
+  --destructive-foreground: #ffffff;
+  --border: #e8e8e8;
+  --input: #b5b5b5;
+  --ring: hsl(0, 0%, 41.96%);
+  --radius: 0.8rem;
+  
+  /* Weather specific colors */
+  --weather-orange: hsl(28, 100%, 52%);
+  --weather-blue: hsl(233, 67%, 56%);
+  --weather-blue-dark: hsl(248, 70%, 36%);
+  --neutral-900: hsl(243, 96%, 9%);
+  --neutral-800: hsl(243, 27%, 20%);
+  --neutral-700: hsl(243, 23%, 24%);
+  --neutral-600: hsl(243, 23%, 30%);
+  --neutral-300: hsl(240, 6%, 70%);
+  --neutral-200: hsl(250, 6%, 84%);
+  --shadow: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 1px 2px -1px hsl(9, 75%, 61% / 0.00);
+  --chart-1: hsl(203.8863, 88.2845%, 53.1373%);
+  --chart-2: hsl(159.7826, 100%, 36.0784%);
+  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --sidebar: hsl(45, 25%, 97%);
+  --spacing: 0.25rem;
+  --font-mono: Menlo, monospace;
+  --font-sans: 'Poppins', sans-serif;
+  --shadow-lg: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 4px 6px -1px hsl(9, 75%, 61% / 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 2px 4px -1px hsl(9, 75%, 61% / 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 1px 2px -1px hsl(9, 75%, 61% / 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 8px 10px -1px hsl(9, 75%, 61% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00);
+  --font-serif: 'Poppins', sans-serif;
+  --shadow-2xl: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00);
+  --shadow-2xs: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00);
+  --sidebar-ring: hsl(9, 75%, 61%);
+  --sidebar-accent: hsl(25, 45%, 80%);
+  --sidebar-border: hsl(45, 15%, 80%);
+  --sidebar-primary: hsl(9, 75%, 61%);
+  --tracking-normal: 0em;
+  --sidebar-foreground: hsl(20, 14%, 17%);
+  --sidebar-accent-foreground: hsl(20, 14%, 17%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+}
+
+.dark {
+  --background: hsl(20, 14%, 4%);
+  --foreground: hsl(45, 25%, 91%);
+  --card: hsl(20, 14%, 8%);
+  --card-foreground: hsl(45, 25%, 85%);
+  --popover: hsl(20, 14%, 4%);
+  --popover-foreground: hsl(45, 25%, 91%);
+  --primary: hsl(9, 75%, 61%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(30, 15%, 52%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(20, 14%, 15%);
+  --muted-foreground: hsl(45, 15%, 46%);
+  --accent: hsl(25, 45%, 20%);
+  --accent-foreground: hsl(45, 25%, 85%);
+  --destructive: hsl(356.3033, 90.5579%, 54.3137%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(20, 14%, 15%);
+  --input: hsl(20, 14%, 18%);
+  --ring: hsl(9, 75%, 61%);
+  --chart-1: hsl(203.8863, 88.2845%, 53.1373%);
+  --chart-2: hsl(159.7826, 100%, 36.0784%);
+  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --sidebar: hsl(20, 14%, 8%);
+  --sidebar-ring: hsl(9, 75%, 61%);
+  --sidebar-accent: hsl(25, 45%, 20%);
+  --sidebar-border: hsl(20, 14%, 15%);
+  --sidebar-primary: hsl(9, 75%, 61%);
+  --sidebar-foreground: hsl(45, 25%, 85%);
+  --sidebar-accent-foreground: hsl(45, 25%, 85%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+  }
+}
+
+@layer components {
+  .weather-app-bg {
+    background: linear-gradient(135deg, hsl(248, 70%, 36%) 0%, hsl(233, 67%, 56%) 50%, hsl(243, 96%, 9%) 100%);
+    min-height: 100vh;
+  }
+
+  .weather-card {
+    background: linear-gradient(135deg, hsl(233, 67%, 56%) 0%, hsl(248, 70%, 36%) 100%);
+    border-radius: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .weather-card::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    right: 20%;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .weather-card::after {
+    content: '';
+    position: absolute;
+    bottom: 30%;
+    left: 10%;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    animation: float 4s ease-in-out infinite reverse;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .metric-card {
+    background: hsl(243, 27%, 20%);
+    border: 1px solid hsl(243, 23%, 30%);
+    transition: all 0.3s ease;
+  }
+
+  .metric-card:hover {
+    background: hsl(243, 23%, 24%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  .forecast-card {
+    background: hsl(243, 27%, 20%);
+    border: 1px solid hsl(243, 23%, 30%);
+    transition: all 0.3s ease;
+  }
+
+  .forecast-card:hover {
+    background: hsl(243, 23%, 24%);
+    transform: translateY(-1px);
+  }
+
+  .hourly-item {
+    background: hsl(243, 27%, 20%);
+    border: 1px solid hsl(243, 23%, 30%);
+    transition: all 0.3s ease;
+  }
+
+  .hourly-item:hover {
+    background: hsl(243, 23%, 24%);
+  }
+
+  .weather-icon {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+
+  .loading-spinner {
+    border: 3px solid hsl(243, 23%, 30%);
+    border-top: 3px solid hsl(28, 100%, 52%);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
