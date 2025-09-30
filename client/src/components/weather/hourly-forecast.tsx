@@ -1,8 +1,6 @@
-import { useState } from "react";
-import { HourlyForecastItem } from "@shared/schema";
+import { HourlyForecastItem } from "@/types/schema";
 import { getWeatherIcon } from "./weather-icons";
 import { UnitsConfig } from "@/pages/home";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface HourlyForecastProps {
   hourlyForecast: HourlyForecastItem[];
@@ -10,53 +8,58 @@ interface HourlyForecastProps {
 }
 
 export default function HourlyForecast({ hourlyForecast, unitsConfig }: HourlyForecastProps) {
-  const [selectedDay, setSelectedDay] = useState("Tuesday");
-
   const formatTemperature = (temp: number) => {
     const symbol = unitsConfig.temperature === "celsius" ? "°" : "°F";
     return `${temp}${symbol}`;
   };
 
-  const daysOfWeek = [
-    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-  ];
+  // Format time to show just the hour
+  const formatTime = (timeString: string) => {
+    // If time is already in format like "3 PM", return as is
+    if (timeString.includes("PM") || timeString.includes("AM")) {
+      return timeString;
+    }
+    
+    // Otherwise try to parse it
+    try {
+      const [hours] = timeString.split(":");
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+      return `${displayHour} ${ampm}`;
+    } catch {
+      return timeString;
+    }
+  };
+
+  // Take only the first 8 hours to prevent it being too long
+  const limitedForecast = hourlyForecast.slice(0, 8);
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6" data-testid="section-hourly-forecast">
+    <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6" data-testid="section-hourly-forecast">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-foreground" data-testid="heading-hourly-forecast">
+        <h3 className="text-lg font-semibold text-white" data-testid="heading-hourly-forecast">
           Hourly forecast
         </h3>
-        <Select value={selectedDay} onValueChange={setSelectedDay}>
-          <SelectTrigger className="w-32" data-testid="select-day">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {daysOfWeek.map((day) => (
-              <SelectItem key={day} value={day} data-testid={`option-day-${day.toLowerCase()}`}>
-                {day}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <span className="text-sm text-white/60">Today</span>
       </div>
-
-      <div className="space-y-3">
-        {hourlyForecast.map((hour, index) => (
+      
+      <div className="space-y-3 max-h-96 overflow-y-auto">
+        {limitedForecast.map((hour, index) => (
           <div 
             key={`${hour.time}-${index}`} 
-            className="hourly-item flex items-center justify-between p-3 rounded-lg"
+            className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
             data-testid={`item-hourly-${index}`}
           >
             <div className="flex items-center gap-3">
               <div data-testid={`icon-hourly-${index}`}>
-                {getWeatherIcon(hour.weatherCode, "w-5 h-5")}
+                {getWeatherIcon(hour.weatherCode, "w-6 h-6")}
               </div>
-              <span className="text-sm text-foreground" data-testid={`text-time-${index}`}>
-                {hour.time}
+              <span className="text-sm text-white font-medium" data-testid={`text-time-${index}`}>
+                {formatTime(hour.time)}
               </span>
             </div>
-            <span className="font-semibold text-foreground" data-testid={`text-hourly-temp-${index}`}>
+            <span className="font-semibold text-white text-lg" data-testid={`text-hourly-temp-${index}`}>
               {formatTemperature(hour.temperature)}
             </span>
           </div>

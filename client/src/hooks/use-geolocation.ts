@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { WeatherData } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { WeatherData } from "@/types/schema";
+import { getWeather } from "@/lib/weatherApi";
 import { useToast } from "@/hooks/use-toast";
 import { Units } from "@/pages/home";
 
@@ -22,8 +22,13 @@ export function useGeolocation() {
 
   const weatherByLocationMutation = useMutation({
     mutationFn: async (request: GeolocationRequest) => {
-      const response = await apiRequest("POST", "/api/weather/coordinates", request);
-      return response.json();
+      return await getWeather({
+        latitude: request.latitude,
+        longitude: request.longitude,
+        city: "Your location",
+        country: "",
+        units: request.units,
+      });
     },
     onSuccess: (data: WeatherData) => {
       toast({

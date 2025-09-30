@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sun, Settings, ChevronDown } from "lucide-react";
+import { Settings, ChevronDown } from "lucide-react";
 import { Units, UnitsConfig } from "@/pages/home";
 
 interface HeaderProps {
@@ -44,18 +44,24 @@ export default function Header({ units, unitsConfig, onUnitsChange }: HeaderProp
 
   return (
     <header className="flex items-center justify-between mb-8">
+      {/* Weather Now Logo - Berlin Style */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-          <Sun className="w-6 h-6 text-primary-foreground" data-testid="logo-icon" />
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+          {/* Orange sun icon like Berlin design */}
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="6" fill="#FF8C00"/>
+            <path d="M16 2V6M16 26V30M30 16H26M6 16H2M25.66 6.34L22.83 9.17M9.17 22.83L6.34 25.66M25.66 25.66L22.83 22.83M9.17 9.17L6.34 6.34" 
+                  stroke="#FF8C00" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
         </div>
-        <h1 className="text-xl font-heading font-bold text-white" data-testid="app-title">Weather Now</h1>
+        <h1 className="text-2xl font-heading font-bold text-white" data-testid="app-title">Weather Now</h1>
       </div>
       
       <div className="relative">
         <Button
-          variant="outline"
+          variant="ghost"
           onClick={handleUnitsToggle}
-          className="flex items-center gap-2 bg-card border-border text-foreground hover:bg-accent"
+          className="flex items-center gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
           data-testid="button-units-toggle"
         >
           <Settings className="w-4 h-4" />
@@ -65,7 +71,7 @@ export default function Header({ units, unitsConfig, onUnitsChange }: HeaderProp
         
         {isUnitsOpen && (
           <div 
-            className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-lg shadow-lg p-4 z-50"
+            className="absolute right-0 top-full mt-2 w-64 bg-card/95 backdrop-blur-md border border-border rounded-lg shadow-xl p-4 z-50"
             data-testid="dropdown-units"
           >
             <div className="space-y-4">

@@ -3,13 +3,15 @@
 Complete documentation for the Weather App REST API endpoints.
 
 ## Base URL
-```
+
+```text
 https://your-replit-url.replit.app
 # or for local development
 http://localhost:5000
 ```
 
 ## Authentication
+
 No authentication required. All endpoints are publicly accessible.
 
 ---
@@ -23,6 +25,7 @@ Retrieve weather data for a specific city by name.
 **Endpoint:** `POST /api/weather/search`
 
 **Request Body:**
+
 ```json
 {
   "city": "London",
@@ -31,6 +34,7 @@ Retrieve weather data for a specific city by name.
 ```
 
 **Request Schema:**
+
 ```typescript
 {
   city: string (required, min length: 1),
@@ -39,6 +43,7 @@ Retrieve weather data for a specific city by name.
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "location": {
@@ -83,6 +88,7 @@ Retrieve weather data for a specific city by name.
 ```
 
 **Error Responses:**
+
 ```json
 // 400 Bad Request - Invalid input
 {
@@ -112,6 +118,7 @@ Retrieve weather data for a specific city by name.
 ```
 
 **Example Request:**
+
 ```bash
 curl -X POST https://your-app.replit.app/api/weather/search \
   -H "Content-Type: application/json" \
@@ -127,6 +134,7 @@ Retrieve weather data for specific geographic coordinates.
 **Endpoint:** `POST /api/weather/coordinates`
 
 **Request Body:**
+
 ```json
 {
   "latitude": 40.7128,
@@ -136,6 +144,7 @@ Retrieve weather data for specific geographic coordinates.
 ```
 
 **Request Schema:**
+
 ```typescript
 {
   latitude: number (required),
@@ -148,6 +157,7 @@ Retrieve weather data for specific geographic coordinates.
 Same format as city search endpoint, but location may show "Current Location" if reverse geocoding fails.
 
 **Error Responses:**
+
 ```json
 // 400 Bad Request - Invalid coordinates
 {
@@ -165,6 +175,7 @@ Same format as city search endpoint, but location may show "Current Location" if
 ```
 
 **Example Request:**
+
 ```bash
 curl -X POST https://your-app.replit.app/api/weather/coordinates \
   -H "Content-Type: application/json" \
@@ -182,6 +193,7 @@ Retrieve all saved favorite cities for the user.
 **Endpoint:** `GET /api/favorites`
 
 **Response (200 OK):**
+
 ```json
 [
   {
@@ -206,6 +218,7 @@ Retrieve all saved favorite cities for the user.
 ```
 
 **Error Responses:**
+
 ```json
 // 500 Internal Server Error
 {
@@ -214,6 +227,7 @@ Retrieve all saved favorite cities for the user.
 ```
 
 **Example Request:**
+
 ```bash
 curl -X GET https://your-app.replit.app/api/favorites
 ```
@@ -227,6 +241,7 @@ Add a new city to the favorites list.
 **Endpoint:** `POST /api/favorites`
 
 **Request Body:**
+
 ```json
 {
   "name": "My Vacation Spot",
@@ -238,6 +253,7 @@ Add a new city to the favorites list.
 ```
 
 **Request Schema:**
+
 ```typescript
 {
   name: string (required, max 255 chars),
@@ -249,6 +265,7 @@ Add a new city to the favorites list.
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "id": "456789ab-cdef-1234-5678-90abcdef1234",
@@ -262,6 +279,7 @@ Add a new city to the favorites list.
 ```
 
 **Error Responses:**
+
 ```json
 // 400 Bad Request - Validation error
 {
@@ -286,6 +304,7 @@ Add a new city to the favorites list.
 ```
 
 **Example Request:**
+
 ```bash
 curl -X POST https://your-app.replit.app/api/favorites \
   -H "Content-Type: application/json" \
@@ -307,9 +326,11 @@ Retrieve details for a specific favorite city by ID.
 **Endpoint:** `GET /api/favorites/:id`
 
 **Path Parameters:**
+
 - `id` (string, required): UUID of the favorite city
 
 **Response (200 OK):**
+
 ```json
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -323,6 +344,7 @@ Retrieve details for a specific favorite city by ID.
 ```
 
 **Error Responses:**
+
 ```json
 // 404 Not Found
 {
@@ -336,6 +358,7 @@ Retrieve details for a specific favorite city by ID.
 ```
 
 **Example Request:**
+
 ```bash
 curl -X GET https://your-app.replit.app/api/favorites/123e4567-e89b-12d3-a456-426614174000
 ```
@@ -349,12 +372,14 @@ Remove a city from the favorites list.
 **Endpoint:** `DELETE /api/favorites/:id`
 
 **Path Parameters:**
+
 - `id` (string, required): UUID of the favorite city to remove
 
 **Response (204 No Content):**
 No response body.
 
 **Error Responses:**
+
 ```json
 // 404 Not Found
 {
@@ -368,6 +393,7 @@ No response body.
 ```
 
 **Example Request:**
+
 ```bash
 curl -X DELETE https://your-app.replit.app/api/favorites/123e4567-e89b-12d3-a456-426614174000
 ```
@@ -377,6 +403,7 @@ curl -X DELETE https://your-app.replit.app/api/favorites/123e4567-e89b-12d3-a456
 ## Data Models
 
 ### WeatherData
+
 ```typescript
 interface WeatherData {
   location: {
@@ -403,6 +430,7 @@ interface WeatherData {
 ```
 
 ### DailyForecastItem
+
 ```typescript
 interface DailyForecastItem {
   date: string;           // YYYY-MM-DD format
@@ -415,6 +443,7 @@ interface DailyForecastItem {
 ```
 
 ### HourlyForecastItem
+
 ```typescript
 interface HourlyForecastItem {
   time: string;           // HH:MM format (24-hour)
@@ -425,6 +454,7 @@ interface HourlyForecastItem {
 ```
 
 ### FavoriteCity
+
 ```typescript
 interface FavoriteCity {
   id: string;             // UUID
@@ -438,6 +468,7 @@ interface FavoriteCity {
 ```
 
 ### InsertFavoriteCity
+
 ```typescript
 interface InsertFavoriteCity {
   name: string;           // Display name (required, max 255 chars)
@@ -490,6 +521,7 @@ The API uses WMO (World Meteorological Organization) weather codes from Open-Met
 ## Error Handling
 
 ### Error Response Format
+
 All API errors follow a consistent format:
 
 ```json
@@ -520,6 +552,7 @@ All API errors follow a consistent format:
 ### Common Error Scenarios
 
 #### City Not Found
+
 ```json
 // When searching for non-existent city
 {
@@ -528,6 +561,7 @@ All API errors follow a consistent format:
 ```
 
 #### Validation Errors
+
 ```json
 // When request data is invalid
 {
@@ -547,6 +581,7 @@ All API errors follow a consistent format:
 ```
 
 #### Geolocation Errors
+
 ```json
 // When coordinates are invalid
 {
@@ -555,6 +590,7 @@ All API errors follow a consistent format:
 ```
 
 #### Database Errors
+
 ```json
 // When database operations fail
 {
@@ -569,6 +605,7 @@ All API errors follow a consistent format:
 Currently, there are no rate limits implemented. However, the app relies on Open-Meteo API which has generous limits for free usage.
 
 **Open-Meteo Limits:**
+
 - No API key required
 - 10,000 requests per day
 - 5,000 requests per hour
@@ -579,6 +616,7 @@ Currently, there are no rate limits implemented. However, the app relies on Open
 ## Integration Examples
 
 ### JavaScript/TypeScript
+
 ```typescript
 // Weather search
 const response = await fetch('/api/weather/search', {
@@ -613,6 +651,7 @@ const favorite = await favoriteResponse.json();
 ```
 
 ### Python
+
 ```python
 import requests
 
@@ -639,6 +678,7 @@ favorite = favorite_response.json()
 ```
 
 ### cURL Examples
+
 ```bash
 # Search weather
 curl -X POST https://your-app.replit.app/api/weather/search \
@@ -673,6 +713,7 @@ curl -X DELETE https://your-app.replit.app/api/favorites/123e4567-e89b-12d3-a456
 ## Testing the API
 
 ### Unit Testing
+
 ```typescript
 // Example Jest test
 describe('Weather API', () => {
@@ -691,6 +732,7 @@ describe('Weather API', () => {
 ```
 
 ### Integration Testing
+
 ```typescript
 // Example API integration test
 describe('Favorites API', () => {
@@ -722,3 +764,5 @@ describe('Favorites API', () => {
 ---
 
 This API documentation provides complete details for integrating with the Weather App backend. For frontend integration examples, see the `DEVELOPMENT.md` file.
+ 
+ 

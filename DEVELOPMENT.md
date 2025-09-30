@@ -4,7 +4,7 @@ This document provides detailed explanations of the codebase architecture, imple
 
 ## 📁 Project Structure
 
-```
+```text
 weather-app/
 ├── client/                          # Frontend React application
 │   ├── src/
@@ -57,6 +57,7 @@ weather-app/
 The frontend follows a modern React architecture with these key patterns:
 
 #### Component Composition
+
 ```typescript
 // Main page structure
 <Home>
@@ -73,6 +74,7 @@ The frontend follows a modern React architecture with these key patterns:
 ```
 
 #### Custom Hooks Pattern
+
 Custom hooks encapsulate complex logic and provide clean APIs:
 
 ```typescript
@@ -93,6 +95,7 @@ export function useFavorites() {
 ```
 
 #### State Management
+
 - **React Query**: Server state management with caching
 - **useState**: Local component state
 - **useEffect**: Side effects and lifecycle management
@@ -102,11 +105,13 @@ export function useFavorites() {
 The backend follows a layered architecture:
 
 #### Layer Structure
+
 1. **Routes Layer** (`routes.ts`): HTTP request/response handling
 2. **Storage Layer** (`storage.ts`): Database operations interface
 3. **Database Layer** (`db.ts`): Database connection and configuration
 
 #### Interface Pattern
+
 ```typescript
 // Storage interface for dependency injection
 export interface IStorage {
@@ -130,6 +135,7 @@ export class DatabaseStorage implements IStorage {
 ### Geolocation Integration
 
 #### Automatic Detection
+
 ```typescript
 // Implemented in client/src/pages/home.tsx
 useEffect(() => {
@@ -155,6 +161,7 @@ useEffect(() => {
 ```
 
 #### Manual Location Button
+
 ```typescript
 // useGeolocation hook provides getCurrentPosition method
 export function useGeolocation() {
@@ -180,6 +187,7 @@ export function useGeolocation() {
 ### Favorites System Implementation
 
 #### Database Schema
+
 ```typescript
 // shared/schema.ts
 export const favoriteCities = pgTable("favorite_cities", {
@@ -194,6 +202,7 @@ export const favoriteCities = pgTable("favorite_cities", {
 ```
 
 #### API Endpoints
+
 ```typescript
 // server/routes.ts - RESTful API design
 app.get("/api/favorites", async (req, res) => {
@@ -220,6 +229,7 @@ app.delete("/api/favorites/:id", async (req, res) => {
 ```
 
 #### Frontend Integration
+
 ```typescript
 // React Query mutation with cache invalidation
 const addFavoriteMutation = useMutation({
@@ -247,6 +257,7 @@ const addFavoriteMutation = useMutation({
 ### Weather Icons System
 
 #### Custom Icon Implementation
+
 ```typescript
 // client/src/components/weather/weather-icons.tsx
 import iconSunny from "@assets/icon-sunny_1757617387016.webp";
@@ -265,7 +276,9 @@ export function getWeatherIcon(weatherCode: number, className: string = "w-6 h-6
 ```
 
 #### Weather Code Mapping
+
 The app uses Open-Meteo's WMO weather codes:
+
 - `0`: Clear sky → Sunny icon
 - `1-2`: Mainly clear, partly cloudy → Partly cloudy icon
 - `3`: Overcast → Overcast icon
@@ -280,6 +293,7 @@ The app uses Open-Meteo's WMO weather codes:
 ### API Integration
 
 #### Open-Meteo Weather API
+
 ```typescript
 // server/routes.ts - Weather data fetching
 async function fetchWeatherData(lat: number, lon: number, units: string) {
@@ -313,6 +327,7 @@ async function fetchWeatherData(lat: number, lon: number, units: string) {
 ### CSS Architecture
 
 #### Tailwind Configuration
+
 The app uses Tailwind CSS with custom color variables:
 
 ```css
@@ -335,6 +350,7 @@ The app uses Tailwind CSS with custom color variables:
 ```
 
 #### Custom Components
+
 ```css
 .weather-app-bg {
   background: linear-gradient(135deg, hsl(248, 70%, 25%) 0%, hsl(233, 67%, 35%) 50%, hsl(243, 96%, 6%) 100%);
@@ -352,6 +368,7 @@ The app uses Tailwind CSS with custom color variables:
 ### Component Styling Patterns
 
 #### Responsive Design
+
 ```typescript
 // Example responsive grid layout
 <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
@@ -365,6 +382,7 @@ The app uses Tailwind CSS with custom color variables:
 ```
 
 #### Loading States
+
 ```typescript
 // Skeleton loading pattern
 {isLoading ? (
@@ -383,16 +401,19 @@ The app uses Tailwind CSS with custom color variables:
 ### Local Development Setup
 
 1. **Install Dependencies**
+
    ```bash
    npm install
    ```
 
 2. **Start Development Server**
+
    ```bash
    npm run dev
    ```
 
 3. **Database Operations**
+
    ```bash
    npm run db:push      # Sync schema to database
    npm run db:studio    # Open database studio
@@ -401,6 +422,7 @@ The app uses Tailwind CSS with custom color variables:
 ### Code Quality Tools
 
 #### TypeScript Configuration
+
 ```json
 // tsconfig.json highlights
 {
@@ -413,7 +435,9 @@ The app uses Tailwind CSS with custom color variables:
 ```
 
 #### Linting and Formatting
+
 The project uses ESLint and Prettier for code quality:
+
 - TypeScript strict mode enabled
 - React hooks rules enforced
 - Import organization automated
@@ -421,6 +445,7 @@ The project uses ESLint and Prettier for code quality:
 ### Testing Strategy
 
 #### Test IDs Pattern
+
 All interactive elements include test IDs for automated testing:
 
 ```typescript
@@ -432,6 +457,7 @@ All interactive elements include test IDs for automated testing:
 ```
 
 #### Test ID Conventions
+
 - **Interactive elements**: `{action}-{target}` (e.g., `button-submit`, `input-email`)
 - **Display elements**: `{type}-{content}` (e.g., `text-temperature`, `img-weather`)
 - **Dynamic elements**: `{type}-{description}-{id}` (e.g., `card-favorite-${id}`)
@@ -439,12 +465,14 @@ All interactive elements include test IDs for automated testing:
 ## 🚀 Deployment
 
 ### Build Process
+
 ```bash
 npm run build        # Build for production
 npm run preview      # Preview production build
 ```
 
 ### Environment Variables
+
 ```bash
 # Required for production
 DATABASE_URL=postgresql://...
@@ -456,6 +484,7 @@ PGDATABASE=...
 ```
 
 ### Deployment Checklist
+
 - [ ] Database migrations applied
 - [ ] Environment variables configured
 - [ ] Build process completes without errors
@@ -469,6 +498,7 @@ PGDATABASE=...
 ### Development Issues
 
 #### Database Connection
+
 ```typescript
 // Check database configuration
 import { db } from './db';
@@ -476,6 +506,7 @@ const result = await db.select().from(favoriteCities).limit(1);
 ```
 
 #### API Errors
+
 ```typescript
 // Debug API requests
 console.log('Request URL:', url);
@@ -485,6 +516,7 @@ console.log('Response body:', await response.text());
 ```
 
 #### Geolocation Issues
+
 ```typescript
 // Check geolocation support
 if (!navigator.geolocation) {
@@ -502,6 +534,7 @@ navigator.geolocation.getCurrentPosition(
 ### Performance Optimization
 
 #### React Query Optimization
+
 ```typescript
 // Efficient query key structure
 const queryKey = ['/api/favorites'];           // Good
@@ -512,6 +545,7 @@ queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
 ```
 
 #### Image Optimization
+
 ```typescript
 // Optimize weather icons
 <img 
@@ -527,3 +561,5 @@ queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
 ---
 
 This development guide provides comprehensive details about the codebase implementation. For API-specific documentation, see `API_DOCUMENTATION.md`.
+ 
+ 

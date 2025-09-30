@@ -1,4 +1,4 @@
-import { WeatherData } from "@shared/schema";
+import { WeatherData } from "@/types/schema";
 import { UnitsConfig } from "@/pages/home";
 
 interface WeatherMetricsProps {
@@ -13,13 +13,13 @@ export default function WeatherMetrics({ weatherData, unitsConfig }: WeatherMetr
   };
 
   const formatWindSpeed = (speed: number) => {
-    const unit = unitsConfig.windSpeed === "kmh" ? "km/h" : "mph";
-    return `${speed} ${unit}`;
+    const unit = unitsConfig.windSpeed === "kmh" ? " km/h" : " mph";
+    return `${speed}${unit}`;
   };
 
   const formatPrecipitation = (precip: number) => {
-    const unit = unitsConfig.precipitation === "mm" ? "mm" : "in";
-    return `${precip} ${unit}`;
+    const unit = unitsConfig.precipitation === "mm" ? " mm" : " in";
+    return `${precip}${unit}`;
   };
 
   const metrics = [
@@ -46,11 +46,11 @@ export default function WeatherMetrics({ weatherData, unitsConfig }: WeatherMetr
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6" data-testid="grid-weather-metrics">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-testid="grid-weather-metrics">
       {metrics.map((metric) => (
-        <div key={metric.label} className="metric-card p-4 rounded-lg" data-testid={metric.testId}>
-          <p className="text-muted-foreground text-sm mb-1">{metric.label}</p>
-          <p className="text-xl font-semibold text-foreground">{metric.value}</p>
+        <div key={metric.label} className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-xl hover:bg-white/15 transition-colors" data-testid={metric.testId}>
+          <p className="text-white/60 text-sm mb-2 font-medium">{metric.label}</p>
+          <p className="text-2xl font-bold text-white">{metric.value}</p>
         </div>
       ))}
     </div>

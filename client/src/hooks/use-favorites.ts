@@ -1,22 +1,36 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { type FavoriteCity, type InsertFavoriteCity } from "@shared/schema";
+import { type FavoriteCity, type InsertFavoriteCity } from "@/types/schema";
 
 export function useFavorites() {
   const { toast } = useToast();
   
   const favoritesQuery = useQuery({
-    queryKey: ["/api/favorites"],
+    queryKey: ["favorites"],
+    queryFn: async () => {
+      const raw = localStorage.getItem("favorites");
+      return raw ? (JSON.parse(raw) as FavoriteCity[]) : [];
+    },
   });
 
   const addFavoriteMutation = useMutation({
     mutationFn: async (cityData: InsertFavoriteCity) => {
-      const response = await apiRequest("POST", "/api/favorites", cityData);
-      return response.json();
+      const newCity: FavoriteCity = {
+        id: crypto.randomUUID(),
+        name: cityData.name,
+        latitude: cityData.latitude,
+        longitude: cityData.longitude,
+        city: cityData.city,
+        country: cityData.country,
+      };
+      const current: FavoriteCity[] = (favoritesQuery.data as FavoriteCity[]) || [];
+      const next = [...current, newCity];
+      localStorage.setItem("favorites", JSON.stringify(next));
+      return newCity;
     },
     onSuccess: (data: FavoriteCity) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/favorites"] });
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
       toast({
         title: "City added to favorites",
         description: `${data.name} has been added to your favorites.`,
@@ -33,11 +47,13 @@ export function useFavorites() {
 
   const removeFavoriteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest("DELETE", `/api/favorites/${id}`);
-      return response;
+      const current: FavoriteCity[] = (favoritesQuery.data as FavoriteCity[]) || [];
+      const next = current.filter((c) => c.id !== id);
+      localStorage.setItem("favorites", JSON.stringify(next));
+      return true;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/favorites"] });
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
       toast({
         title: "City removed",
         description: "The city has been removed from your favorites.",

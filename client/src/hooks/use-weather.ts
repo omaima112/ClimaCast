@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { WeatherData, WeatherRequest } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { WeatherData, WeatherRequest } from "@/types/schema";
+import { searchByCity, getWeather } from "@/lib/weatherApi";
 import { useToast } from "@/hooks/use-toast";
 
 interface CoordinatesRequest {
@@ -16,8 +16,7 @@ export function useWeather() {
 
   const searchMutation = useMutation({
     mutationFn: async (request: WeatherRequest) => {
-      const response = await apiRequest("POST", "/api/weather/search", request);
-      return response.json();
+      return await searchByCity(request);
     },
     onSuccess: (data: WeatherData) => {
       setWeatherData(data);
@@ -38,8 +37,13 @@ export function useWeather() {
 
   const coordinatesMutation = useMutation({
     mutationFn: async (request: CoordinatesRequest) => {
-      const response = await apiRequest("POST", "/api/weather/coordinates", request);
-      return response.json();
+      return await getWeather({
+        latitude: request.latitude,
+        longitude: request.longitude,
+        city: "Your location",
+        country: "",
+        units: request.units,
+      });
     },
     onSuccess: (data: WeatherData) => {
       setWeatherData(data);

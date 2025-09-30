@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Star, StarOff, Plus } from "lucide-react";
-import { type WeatherData, type InsertFavoriteCity } from "@shared/schema";
+import { type WeatherData, type InsertFavoriteCity } from "@/types/schema";
 
 interface AddToFavoritesProps {
   weatherData: WeatherData;
