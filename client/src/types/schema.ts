@@ -6,7 +6,7 @@ export interface Coordinates {
 export interface LocationInfo {
   city: string;
   country: string;
-  coordinates?: Coordinates | null;
+  coordinates: Coordinates;
 }
 
 export interface WeatherRequest {
@@ -16,28 +16,27 @@ export interface WeatherRequest {
 
 export interface HourlyForecastItem {
   weatherCode: number;
-  time: string;          // e.g. "14:00"
-  temperature: number;   // in °C or °F
-  windSpeed?: number;    // in km/h or mph (optional)
-  precipitation?: number; // in mm (optional)
-  icon?: string;         // weather icon code (optional)
-  description?: string;  // weather description (optional)
+  time: string;
+  temperature: number;
+  windSpeed: number;
+  precipitation: number;
+  description: string;
 }
 
 export interface DailyForecastItem {
   weatherCode: number;
-  dayName: string;       // Changed from ReactNode to string
-  date: string;          // e.g. "2025-09-27"
-  maxTemp: number;       // max temperature
-  minTemp: number;       // min temperature
-  precipitation?: number; // in mm (optional)
-  icon?: string;         // weather icon code (optional)
-  description?: string;  // weather description (optional)
+  dayName: string;
+  date: string;
+  maxTemp: number;
+  minTemp: number;
+  precipitation: number;
+  description: string;
+  sunrise?: string;
+  sunset?: string;
+  uvIndex?: number;
 }
 
 export interface WeatherData {
-  dailyForecast: any;
-  hourlyForecast: any;
   location: LocationInfo;
   current: {
     feelsLike: number;
@@ -46,16 +45,19 @@ export interface WeatherData {
     humidity: number;
     windSpeed: number;
     precipitation: number;
+    uvIndex: number;
+    pressure: number;
     description: string;
-    icon?: string;
   };
   hourly: HourlyForecastItem[];
   daily: DailyForecastItem[];
+  todaySunrise?: string;
+  todaySunset?: string;
 }
 
 export interface FavoriteCity {
-  id: string;     // unique identifier
-  name: string;   // display name
+  id: string;
+  name: string;
   latitude: number;
   longitude: number;
   city?: string;

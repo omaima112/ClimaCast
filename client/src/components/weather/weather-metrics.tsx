@@ -8,7 +8,7 @@ interface WeatherMetricsProps {
 
 export default function WeatherMetrics({ weatherData, unitsConfig }: WeatherMetricsProps) {
   const formatTemperature = (temp: number) => {
-    const symbol = unitsConfig.temperature === "celsius" ? "°" : "°F";
+    const symbol = unitsConfig.temperature === "celsius" ? "°C" : "°F";
     return `${temp}${symbol}`;
   };
 

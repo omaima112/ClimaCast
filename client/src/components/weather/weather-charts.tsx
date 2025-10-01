@@ -20,10 +20,9 @@ export default function WeatherCharts({
   weatherData,
   unitsConfig,
 }: WeatherChartsProps) {
-  // ✅ Changed hourlyForecast -> hourly
   const temperatureData = weatherData.hourly
     ?.slice(0, 12)
-    .map((hour: { time: string; temperature: number }) => ({
+    .map((hour) => ({
       time:
         hour.time.includes("PM") || hour.time.includes("AM")
           ? hour.time
@@ -31,16 +30,15 @@ export default function WeatherCharts({
       temperature: hour.temperature,
     })) ?? [];
 
+  // FIXED: Using REAL wind data from hourly forecast
   const windData = weatherData.hourly
     ?.slice(0, 12)
-    .map((hour: { time: string }, index: number) => ({
+    .map((hour) => ({
       time:
         hour.time.includes("PM") || hour.time.includes("AM")
           ? hour.time
           : `${hour.time}:00`,
-      windSpeed: Math.round(
-        (weatherData.current?.windSpeed ?? 0) + (Math.random() * 10 - 5)
-      ),
+      windSpeed: hour.windSpeed,
     })) ?? [];
 
   const tempUnit = unitsConfig.temperature === "celsius" ? "°C" : "°F";
@@ -48,10 +46,9 @@ export default function WeatherCharts({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      {/* Temperature Chart */}
       <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-white mb-4">
-          Temperature Trend
+          Temperature Trend (Next 12 Hours)
         </h3>
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={temperatureData}>
@@ -90,10 +87,9 @@ export default function WeatherCharts({
         </ResponsiveContainer>
       </div>
 
-      {/* Wind Speed Chart */}
       <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-white mb-4">
-          Wind Speed Trend
+          Wind Speed Trend (Next 12 Hours)
         </h3>
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={windData}>

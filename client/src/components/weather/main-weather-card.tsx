@@ -10,7 +10,7 @@ interface MainWeatherCardProps {
 
 export default function MainWeatherCard({ weatherData, unitsConfig }: MainWeatherCardProps) {
   const formatTemperature = (temp: number) => {
-    const symbol = unitsConfig.temperature === "celsius" ? "°" : "°F";
+    const symbol = unitsConfig.temperature === "celsius" ? "°C" : "°F";
     return `${temp}${symbol}`;
   };
 
@@ -26,7 +26,6 @@ export default function MainWeatherCard({ weatherData, unitsConfig }: MainWeathe
 
   return (
     <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 rounded-2xl p-8 text-white relative overflow-hidden mb-6" data-testid="card-main-weather">
-      {/* Background decorative circles */}
       <div className="absolute top-4 right-8 w-20 h-20 bg-orange-400/20 rounded-full"></div>
       <div className="absolute bottom-8 left-4 w-12 h-12 bg-white/10 rounded-full"></div>
       

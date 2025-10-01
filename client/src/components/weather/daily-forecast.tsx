@@ -9,15 +9,15 @@ interface DailyForecastProps {
 
 export default function DailyForecast({ dailyForecast, unitsConfig }: DailyForecastProps) {
   const formatTemperature = (temp: number) => {
-    const symbol = unitsConfig.temperature === "celsius" ? "°" : "°F";
+    const symbol = unitsConfig.temperature === "celsius" ? "°C" : "°F";
     return `${temp}${symbol}`;
   };
 
   const formatDayName = (date: string) => {
-  const dayDate = new Date(date);
-  // Always show the day name instead of Today/Tomorrow
-  return dayDate.toLocaleDateString("en-US", { weekday: "short" });
-};
+    const dayDate = new Date(date);
+    return dayDate.toLocaleDateString("en-US", { weekday: "short" });
+  };
+
   return (
     <div className="mt-8" data-testid="section-daily-forecast">
       <h3 className="text-xl font-semibold text-white mb-6" data-testid="heading-daily-forecast">

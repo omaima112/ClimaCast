@@ -17,6 +17,7 @@ export function AddToFavorites({ weatherData, className }: AddToFavoritesProps) 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [customName, setCustomName] = useState("");
 
+  // FIXED: Use correct property names from weatherData
   const { latitude, longitude } = weatherData.location.coordinates;
   const isCurrentlyFavorite = isFavorite(latitude, longitude);
   const favoriteCity = getFavoriteByCoordinates(latitude, longitude);
@@ -29,8 +30,8 @@ export function AddToFavorites({ weatherData, className }: AddToFavoritesProps) 
         name: weatherData.location.city,
         city: weatherData.location.city,
         country: weatherData.location.country,
-        latitude,
-        longitude,
+        latitude: latitude,  // FIXED: Now using correct variable
+        longitude: longitude, // FIXED: Now using correct variable
       };
       addFavorite(cityData);
     }
@@ -43,8 +44,8 @@ export function AddToFavorites({ weatherData, className }: AddToFavoritesProps) 
       name: customName.trim(),
       city: weatherData.location.city,
       country: weatherData.location.country,
-      latitude,
-      longitude,
+      latitude: latitude,  // FIXED: Now using correct variable
+      longitude: longitude, // FIXED: Now using correct variable
     };
     
     addFavorite(cityData);
@@ -56,7 +57,6 @@ export function AddToFavorites({ weatherData, className }: AddToFavoritesProps) 
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {/* Quick Add/Remove Button */}
       <Button
         variant={isCurrentlyFavorite ? "default" : "outline"}
         size="sm"
@@ -78,7 +78,6 @@ export function AddToFavorites({ weatherData, className }: AddToFavoritesProps) 
         )}
       </Button>
 
-      {/* Custom Name Dialog */}
       {!isCurrentlyFavorite && (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>

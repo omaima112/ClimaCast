@@ -9,18 +9,15 @@ interface HourlyForecastProps {
 
 export default function HourlyForecast({ hourlyForecast, unitsConfig }: HourlyForecastProps) {
   const formatTemperature = (temp: number) => {
-    const symbol = unitsConfig.temperature === "celsius" ? "°" : "°F";
+    const symbol = unitsConfig.temperature === "celsius" ? "°C" : "°F";
     return `${temp}${symbol}`;
   };
 
-  // Format time to show just the hour
   const formatTime = (timeString: string) => {
-    // If time is already in format like "3 PM", return as is
     if (timeString.includes("PM") || timeString.includes("AM")) {
       return timeString;
     }
     
-    // Otherwise try to parse it
     try {
       const [hours] = timeString.split(":");
       const hour = parseInt(hours);
@@ -32,7 +29,6 @@ export default function HourlyForecast({ hourlyForecast, unitsConfig }: HourlyFo
     }
   };
 
-  // Take only the first 8 hours to prevent it being too long
   const limitedForecast = hourlyForecast.slice(0, 8);
 
   return (

@@ -44,10 +44,8 @@ export default function Header({ units, unitsConfig, onUnitsChange }: HeaderProp
 
   return (
     <header className="flex items-center justify-between mb-8">
-      {/* Weather Now Logo - Berlin Style */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-          {/* Orange sun icon like Berlin design */}
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="16" cy="16" r="6" fill="#FF8C00"/>
             <path d="M16 2V6M16 26V30M30 16H26M6 16H2M25.66 6.34L22.83 9.17M9.17 22.83L6.34 25.66M25.66 25.66L22.83 22.83M9.17 9.17L6.34 6.34" 

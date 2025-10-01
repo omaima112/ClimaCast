@@ -4,12 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,600&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   /* Light Mode - Improved for better readability */
   --background: #f0f4f8; /* Slightly cooler, softer blue-gray */

@@ -98,6 +98,9 @@ function mapOpenMeteoToWeatherData(params: {
     weatherCode: daily.weather_code?.[i] || 0,
     precipitation: Math.round(daily.precipitation_sum?.[i] || 0),
     description: getWeatherDescription(daily.weather_code?.[i] || 0),
+    sunrise: daily.sunrise?.[i],
+    sunset: daily.sunset?.[i],
+    uvIndex: daily.uv_index_max?.[i] ? Math.round(daily.uv_index_max[i]) : undefined,
   }));
 
   return {
@@ -108,15 +111,19 @@ function mapOpenMeteoToWeatherData(params: {
     },
     current: {
       temperature: Math.round(current.temperature_2m || 0),
-      feelsLike: Math.round(current.apparent_temperature || current.temperature_2m || 0), // Fixed: fallback to actual temp
+      feelsLike: Math.round(current.apparent_temperature || current.temperature_2m || 0),
       humidity: Math.round(current.relative_humidity_2m || 0),
       windSpeed: Math.round(current.wind_speed_10m || 0),
       precipitation: Math.round(current.precipitation || 0),
       weatherCode: current.weather_code || 0,
       description: getWeatherDescription(current.weather_code || 0),
+      uvIndex: current.uv_index !== undefined ? Math.round(current.uv_index) : 0,
+      pressure: current.surface_pressure !== undefined ? Math.round(current.surface_pressure) : 0,
     },
     hourly: hourlyItems,
     daily: dailyItems,
+    todaySunrise: daily.sunrise?.[0],
+    todaySunset: daily.sunset?.[0],
   };
 }
 
@@ -157,8 +164,8 @@ export async function getWeather(params: {
   const windUnit = units === "metric" ? "kmh" : "mph";
   const precipUnit = units === "metric" ? "mm" : "inch";
 
-  // Updated URL with all the fields we need including apparent_temperature and weather_code
-  const url = `${OPEN_METEO_BASE}/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,precipitation,weather_code&hourly=temperature_2m,precipitation,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&precipitation_unit=${precipUnit}&timezone=auto&forecast_days=7`;
+  // Updated URL with all required fields including UV index, pressure, sunrise, and sunset
+  const url = `${OPEN_METEO_BASE}/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,precipitation,weather_code,uv_index,surface_pressure&hourly=temperature_2m,precipitation,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,sunrise,sunset,uv_index_max&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&precipitation_unit=${precipUnit}&timezone=auto&forecast_days=7`;
 
   const res = await fetch(url);
   if (!res.ok) {

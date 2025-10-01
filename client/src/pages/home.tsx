@@ -12,6 +12,8 @@ import { FavoritesSection } from "@/components/weather/favorites-section";
 import WeatherSuggestions from "@/components/weather/WeatherSuggestions";
 import WeatherCharts from "@/components/weather/weather-charts";
 import CompareLocations from "@/components/weather/compare-locations";
+import SunriseSunset from "@/components/weather/SunriseSunset";
+import UVIndex from "@/components/weather/UVIndex";
 
 import { useWeather } from "@/hooks/use-weather";
 import { useGeolocation } from "@/hooks/use-geolocation";
@@ -229,11 +231,28 @@ export default function Home({ theme, toggleTheme }: HomeProps) {
                       unitsConfig={unitsConfig}
                     />
                   </div>
-                  <div className="xl:col-span-1">
+                  
+                  <div className="xl:col-span-1 space-y-6">
                     <HourlyForecast
                       hourlyForecast={weatherData.hourly}
                       unitsConfig={unitsConfig}
                     />
+                    
+                    {/* UV Index Card */}
+                    {weatherData.current.uvIndex !== undefined && (
+                      <UVIndex 
+                        uvIndex={weatherData.current.uvIndex}
+                        maxUVToday={weatherData.daily[0]?.uvIndex}
+                      />
+                    )}
+                    
+                    {/* Sunrise/Sunset Card */}
+                    {weatherData.todaySunrise && weatherData.todaySunset && (
+                      <SunriseSunset 
+                        sunrise={weatherData.todaySunrise}
+                        sunset={weatherData.todaySunset}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
