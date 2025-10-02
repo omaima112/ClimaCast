@@ -1,13 +1,29 @@
-import { HourlyForecastItem } from "@/types/schema";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { getWeatherIcon } from "./weather-icons";
 import { UnitsConfig } from "@/pages/home";
 
-interface HourlyForecastProps {
+interface HourlyForecastItem {
+  time: string;
+  temperature: number;
+  weatherCode: number;
+  windSpeed: number;
+  precipitation: number;
+  description: string;
+}
+
+interface EnhancedHourlyForecastProps {
   hourlyForecast: HourlyForecastItem[];
   unitsConfig: UnitsConfig;
 }
 
-export default function HourlyForecast({ hourlyForecast, unitsConfig }: HourlyForecastProps) {
+export default function EnhancedHourlyForecast({ 
+  hourlyForecast,
+  unitsConfig 
+}: EnhancedHourlyForecastProps) {
+  const [selectedDay] = useState(0);
+
   const formatTemperature = (temp: number) => {
     const symbol = unitsConfig.temperature === "celsius" ? "°C" : "°F";
     return `${temp}${symbol}`;

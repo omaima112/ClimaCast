@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Settings, ChevronDown } from "lucide-react";
 import { Units, UnitsConfig } from "@/pages/home";
+import { useTranslation } from "react-i18next";
+
 
 interface HeaderProps {
   units: Units;
@@ -149,6 +151,7 @@ export default function Header({ units, unitsConfig, onUnitsChange }: HeaderProp
                     Inches (in)
                   </Button>
                 </div>
+                
               </div>
             </div>
           </div>

@@ -7,13 +7,14 @@ import SearchSection from "@/components/weather/search-section";
 import MainWeatherCard from "@/components/weather/main-weather-card";
 import WeatherMetrics from "@/components/weather/weather-metrics";
 import DailyForecast from "@/components/weather/daily-forecast";
-import HourlyForecast from "@/components/weather/hourly-forecast";
+import EnhancedHourlyForecast from "@/components/weather/hourly-forecast";
 import { FavoritesSection } from "@/components/weather/favorites-section";
 import WeatherSuggestions from "@/components/weather/WeatherSuggestions";
 import WeatherCharts from "@/components/weather/weather-charts";
 import CompareLocations from "@/components/weather/compare-locations";
 import SunriseSunset from "@/components/weather/SunriseSunset";
 import UVIndex from "@/components/weather/UVIndex";
+import AnimatedWeatherBackground from "@/components/weather/animated-weather-background";
 
 import { useWeather } from "@/hooks/use-weather";
 import { useGeolocation } from "@/hooks/use-geolocation";
@@ -136,7 +137,17 @@ export default function Home({ theme, toggleTheme }: HomeProps) {
   // ---------------- Render ----------------
   return (
     <div className="weather-app-bg min-h-screen">
-      <div className="min-h-screen p-4 lg:p-8">
+      {/* Third roaming orb */}
+      <div className="roaming-orb-3"></div>
+      
+      {/* Animated Weather Background */}
+      {weatherData && (
+        <AnimatedWeatherBackground 
+          weatherCode={weatherData.current.weatherCode}
+        />
+      )}
+      
+      <div className="min-h-screen p-4 lg:p-8 relative z-10">
         {/* Theme toggle button */}
         <div className="flex justify-end mb-4">
           <Button
@@ -233,7 +244,7 @@ export default function Home({ theme, toggleTheme }: HomeProps) {
                   </div>
                   
                   <div className="xl:col-span-1 space-y-6">
-                    <HourlyForecast
+                    <EnhancedHourlyForecast
                       hourlyForecast={weatherData.hourly}
                       unitsConfig={unitsConfig}
                     />
