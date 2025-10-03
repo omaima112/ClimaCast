@@ -45,7 +45,7 @@ export default function Header({ units, unitsConfig, onUnitsChange }: HeaderProp
   };
 
   return (
-    <header className="flex items-center justify-between mb-8">
+    <header className="flex items-start justify-between mb-8">
       <div className="flex items-center gap-3">
        <div className="w-10 h-10 rounded-lg flex items-center justify-center -mt-1">
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
