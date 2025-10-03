@@ -430,3 +430,28 @@
     overflow: hidden;
   }
 }
+/* Add this to your index.css file */
+
+/* Logo positioning adjustment */
+.weather-logo {
+  position: relative;
+  top: -2px; /* Move logo up slightly */
+}
+
+/* Alternative: If you want more control */
+.weather-logo svg,
+.weather-logo img {
+  transform: translateY(-2px);
+}
+
+/* Or if the logo is in a flex container with text */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-container svg,
+.logo-container img {
+  margin-top: -3px; /* Nudge icon up */
+}
