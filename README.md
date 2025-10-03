@@ -46,9 +46,12 @@ Users should be able to:
 -  Consistent feedback patterns
 ----
 ## Screenshot
+<img width="682" height="1008" alt="pic6" src="https://github.com/user-attachments/assets/5502fea1-55b7-4dcb-bcd4-c4496e7f509e" />
 
-_Add your screenshots here_  
-![](./screenshot.jpg)
+<img width="1894" height="1055" alt="pic2" src="https://github.com/user-attachments/assets/ceda2021-c451-4656-a654-2409f31c39fa" />
+<img width="806" height="772" alt="pic4" src="https://github.com/user-attachments/assets/5da1af32-cc90-41cd-aae6-c0b8ef23369d" />
+<img width="1918" height="1016" alt="pic1" src="https://github.com/user-attachments/assets/fb5fc57c-e3db-41df-868c-52e28a1e96b6" />
+
 
 ---
 
