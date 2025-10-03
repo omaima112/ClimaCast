@@ -139,8 +139,9 @@ That piece tied the visuals directly to live data, which felt rewarding to see w
 
 ## Author
 
-- GitHub – [yourusername](https://github.com/yourusername)  
-- Frontend Mentor – [@yourusername](https://www.frontendmentor.io/profile/yourusername)  
+- GitHub – omaima112
+- Frontend Mentor – @omaima112  
+
 
 ---
 
