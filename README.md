@@ -54,7 +54,7 @@ Users should be able to:
 
 ## Links
 
-- **Solution URL**: [Add solution URL here](https://your-solution-url.com)  
+- **Solution URL**:  (https://www.frontendmentor.io/solutions/responsive-weather-app-with-react-typescript-tailwind-and-vite-R8LaGrUGem)
 - **Live Site URL**: (https://clima-cast-murex.vercel.app/)
 ---
 
