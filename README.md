@@ -30,9 +30,8 @@ Users should be able to:
 - Search for weather information by entering a location in the search bar  
 - View current weather conditions including temperature, weather icon, and location details  
 - See extra metrics like "feels like" temperature, humidity percentage, wind speed, and precipitation amounts  
-- Browse a 7-day weather forecast with daily high/low temperatures and weather icons  
-- View an hourly forecast showing temperature changes throughout the day  
-- Switch between different days of the week using the day selector in the hourly forecast section  
+- Browse weather forecast with daily high/low temperatures and weather icons  
+- View an hourly forecast showing temperature changes throughout the day   
 - Toggle between Imperial and Metric units (Celsius/Fahrenheit, km/h or mph, millimeters for precipitation)  
 - Experience a responsive UI that adapts to mobile, tablet, and desktop  
 - Get hover and focus states for all interactive elements  
@@ -46,11 +45,9 @@ Users should be able to:
 -  Consistent feedback patterns
 ----
 ## Screenshot
-<img width="682" height="1008" alt="pic6" src="https://github.com/user-attachments/assets/5502fea1-55b7-4dcb-bcd4-c4496e7f509e" />
 
-<img width="1894" height="1055" alt="pic2" src="https://github.com/user-attachments/assets/ceda2021-c451-4656-a654-2409f31c39fa" />
-<img width="806" height="772" alt="pic4" src="https://github.com/user-attachments/assets/5da1af32-cc90-41cd-aae6-c0b8ef23369d" />
-<img width="1918" height="1016" alt="pic1" src="https://github.com/user-attachments/assets/fb5fc57c-e3db-41df-868c-52e28a1e96b6" />
+
+<img width="682" height="1008" alt="pic6" src="https://github.com/user-attachments/assets/7970041c-dcda-4ff2-9a65-077ff49f5d33" /> <img width="740" height="1007" alt="pic7" src="https://github.com/user-attachments/assets/cb20fbbe-a78f-4268-9e10-661b5a9062c3" />
 
 
 ---
@@ -58,8 +55,7 @@ Users should be able to:
 ## Links
 
 - **Solution URL**: [Add solution URL here](https://your-solution-url.com)  
-- **Live Site URL**: [Add live site URL here](https://your-live-site-url.com)  
-
+- **Live Site URL**: (https://clima-cast-murex.vercel.app/)
 ---
 
 ## My process
@@ -111,7 +107,12 @@ That piece tied the visuals directly to live data, which felt rewarding to see w
 - **Lucide React** – icons  
 - **TanStack Query** – server state management  
 - **Wouter** – lightweight routing  
-- **Vite** – build system and fast dev server  
+- **Vite** – build system and fast dev server
+
+
+<img width="1918" height="1016" alt="pic1" src="https://github.com/user-attachments/assets/86b5e93e-8788-40e1-9fc5-2dfaa018790e" /><img width="1894" height="1055" alt="pic2" src="https://github.com/user-attachments/assets/e33e1c06-0c46-43e0-b024-ac9e7738f9d8" />
+
+
 
 ---
 
