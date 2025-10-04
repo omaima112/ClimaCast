@@ -143,8 +143,8 @@ That piece tied the visuals directly to live data, which felt rewarding to see w
 
 ## Author
 
-- GitHub – omaima112
-- Frontend Mentor – @omaima112  
+- GitHub – [omaima112](https://github.com/omaima112)
+- Frontend Mentor – [@omaima112](https://www.frontendmentor.io/profile/omaima112)  
 
 
 ---
